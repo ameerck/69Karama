@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"/>
+<title>RoomSplit</title>
+<link rel="manifest" href="/69split/manifest.json"/>
+<meta name="application-name" content="RoomSplit"/>
+<meta name="description" content="Smart room rent management for roommates"/>
+<meta name="theme-color" content="#4f63ff"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="RoomSplit"/>
+<link rel="apple-touch-icon" href="https://ameerck.github.io/69split/icon-192.png"/>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/69split/sw.js', {scope: '/69split/'}).catch(()=>{});
+  });
+}
+</script>
+<style>
+:root {
+  --bg:       #f5f7ff;
+  --white:    #ffffff;
+  --surface:  #f0f3ff;
+  --border:   #e8ecf8;
+  --border2:  #d4daf5;
+
+  --indigo:   #4f63ff;
+  --indigo-d: #3a4fd4;
+  --indigo-l: #eef0ff;
+  --indigo-p: #dde1ff;
+
+  --teal:     #00b8a2;
+  --teal-l:   #e0faf7;
+  --green:    #00c777;
+  --green-l:  #d6f9ec;
+  --red:      #ff4466;
+  --red-l:    #ffe0e6;
+  --amber:    #ff9500;
+  --amber-l:  #fff3e0;
+  --purple:   #8b5cf6;
+  --purple-l: #ede9fe;
+
+  --text:     #1a1d3a;
+  --text2:    #5a6080;
+  --text3:    #99a0c0;
+
+  --nav-h:    70px;
+  --hdr-h:    62px;
+  --r:        18px;
+  --sh: 0 2px 20px rgba(79,99,255,.08);
+  --sh2:0 8px 40px rgba(79,99,255,.14);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;
+  display:flex;flex-direction:column;
+  max-width:430px;margin:0 auto;
+  box-shadow:0 0 80px rgba(79,99,255,.10);
+}
+
+/* ── HEADER ── */
+.hdr{
+  height:var(--hdr-h);flex-shrink:0;
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;
+  position:relative;z-index:60;
+  box-shadow:0 1px 12px rgba(79,99,255,.07);
+}
+.logo{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.4px;}
+.logo-icon{
+  width:38px;height:38px;border-radius:12px;
+  background:linear-gradient(135deg,var(--indigo),#7c8fff);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 4px 14px rgba(79,99,255,.35);
+}
+.month-pill{
+  display:flex;align-items:center;gap:7px;
+  background:var(--indigo-l);border:1.5px solid var(--indigo-p);
+  border-radius:30px;padding:8px 14px;
+  font-size:12px;font-weight:700;color:var(--indigo);cursor:pointer;
+  transition:all .18s;
+}
+.month-pill:active{background:var(--indigo-p);}
+.m-dot{width:7px;height:7px;border-radius:50%;background:var(--indigo);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── SCROLL ── */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:18px 16px calc(var(--nav-h)+20px);-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{display:none;}
+
+/* ── BOTTOM NAV ── */
+.nav{
+  height:var(--nav-h);flex-shrink:0;
+  background:var(--white);border-top:1px solid var(--border);
+  display:flex;position:relative;z-index:60;
+  box-shadow:0 -4px 24px rgba(79,99,255,.09);
+  padding-bottom:env(safe-area-inset-bottom,0);
+}
+.ni{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;border:none;background:none;color:var(--text3);
+  transition:color .18s;position:relative;padding-top:4px;
+}
+.ni.on{color:var(--indigo);}
+.ni-wrap{
+  width:46px;height:32px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:21px;transition:background .18s,transform .12s;
+}
+.ni.on .ni-wrap{background:var(--indigo-l);}
+.ni:active .ni-wrap{transform:scale(.88);}
+.ni-lbl{font-size:10px;font-weight:700;letter-spacing:.03em;}
+
+/* ── CARDS ── */
+.card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;margin-bottom:12px;
+  box-shadow:var(--sh);
+  animation:fUp .28s ease both;
+}
+.card:nth-child(1){animation-delay:0s}
+.card:nth-child(2){animation-delay:.04s}
+.card:nth-child(3){animation-delay:.08s}
+.card:nth-child(4){animation-delay:.12s}
+.card:nth-child(5){animation-delay:.16s}
+@keyframes fUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.cp{padding:16px;}
+
+/* ── HERO ── */
+.hero{
+  background:linear-gradient(140deg,var(--indigo) 0%,#6c7fff 55%,#4fbdff 100%);
+  border-radius:var(--r);padding:22px 20px;margin-bottom:14px;
+  position:relative;overflow:hidden;color:#fff;
+  box-shadow:0 8px 32px rgba(79,99,255,.32);
+  animation:fUp .28s ease both;
+}
+.hero::before{
+  content:'';position:absolute;top:-50px;right:-40px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(255,255,255,.1);pointer-events:none;
+}
+.hero::after{
+  content:'';position:absolute;bottom:-60px;left:-20px;
+  width:160px;height:160px;border-radius:50%;
+  background:rgba(255,255,255,.06);pointer-events:none;
+}
+.hero-tag{font-size:11px;font-weight:600;opacity:.7;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;}
+.hero-amt{font-size:42px;font-weight:800;letter-spacing:-1.5px;line-height:1;}
+.hero-sub{font-size:12px;opacity:.75;margin-top:5px;}
+.hero-pills{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+.hpill{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.3);border-radius:30px;padding:6px 13px;font-size:12px;font-weight:700;}
+.prog-wrap{height:5px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:14px;overflow:hidden;}
+.prog-fill{height:100%;background:rgba(255,255,255,.9);border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.scard{
+  background:var(--white);border:1px solid var(--border);border-radius:16px;
+  padding:14px;box-shadow:var(--sh);
+  animation:fUp .3s ease both;
+  transition:transform .12s,box-shadow .12s;
+}
+.scard.tap{cursor:pointer;}
+.scard.tap:active{transform:scale(.97);box-shadow:none;}
+.scard:nth-child(2){animation-delay:.04s}
+.scard:nth-child(3){animation-delay:.08s}
+.scard:nth-child(4){animation-delay:.12s}
+.s-icon{font-size:22px;margin-bottom:8px;}
+.s-val{font-size:19px;font-weight:800;}
+.s-lbl{font-size:11px;color:var(--text3);font-weight:600;margin-top:3px;}
+
+/* ── SECTION LABEL ── */
+.sec{
+  display:flex;align-items:center;justify-content:space-between;
+  margin:16px 0 10px;
+}
+.sec-t{font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;}
+.sec-btn{
+  display:flex;align-items:center;gap:5px;
+  background:var(--indigo-l);border:1px solid var(--indigo-p);
+  border-radius:20px;padding:6px 13px;
+  font-size:11px;font-weight:800;color:var(--indigo);cursor:pointer;
+  transition:all .15s;
+}
+.sec-btn:active{background:var(--indigo-p);}
+
+/* ── MEMBER ROWS ── */
+.mr{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border-bottom:1px solid var(--border);
+  transition:background .12s;animation:fUp .28s ease both;
+}
+.mr:last-child{border-bottom:none;}
+.mr:active{background:var(--surface);}
+.av{
+  width:42px;height:42px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:16px;flex-shrink:0;
+}
+.mi{flex:1;min-width:0;}
+.mn{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ms{font-size:11px;color:var(--text3);margin-top:2px;}
+.mamt{font-weight:800;font-size:15px;color:var(--indigo);flex-shrink:0;}
+.ptog{
+  width:38px;height:38px;border-radius:12px;border:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;cursor:pointer;flex-shrink:0;
+  transition:all .15s;
+}
+.ptog:active{transform:scale(.88);}
+.ptog.off{background:var(--surface);color:var(--text3);border:1.5px solid var(--border2);}
+.ptog.on{background:var(--green-l);color:var(--green);border:1.5px solid #a0ead0;}
+
+/* ── BADGE ── */
+.bdg{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;}
+.bdg-i{background:var(--indigo-l);color:var(--indigo);border:1px solid var(--indigo-p);}
+.bdg-g{background:var(--green-l);color:var(--green);border:1px solid #b0ead0;}
+.bdg-r{background:var(--red-l);color:var(--red);border:1px solid #ffc0cc;}
+.bdg-a{background:var(--amber-l);color:var(--amber);border:1px solid #ffd080;}
+.bdg-p{background:var(--purple-l);color:var(--purple);border:1px solid #c4b5fd;}
+.bdg-t{background:var(--teal-l);color:var(--teal);border:1px solid #a0e8e0;}
+
+/* ── LEDGER ENTRY ── */
+.le{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:13px 16px;border-bottom:1px solid var(--border);
+  animation:fUp .28s ease both;
+}
+.le:last-child{border-bottom:none;}
+.li{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.lm{flex:1;min-width:0;}
+.lt{font-weight:700;font-size:13px;}
+.ls{font-size:11px;color:var(--text3);margin-top:2px;}
+.lb{font-size:11px;font-weight:700;margin-top:5px;display:flex;align-items:center;gap:4px;}
+.lr{text-align:right;flex-shrink:0;}
+.la{font-weight:800;font-size:14px;}
+.rx{
+  margin-top:6px;margin-left:auto;
+  width:26px;height:26px;border-radius:8px;
+  background:var(--red-l);color:var(--red);border:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;cursor:pointer;
+}
+
+/* ── OWNER HERO ── */
+.ohero{
+  border-radius:var(--r);padding:22px 20px;margin-bottom:12px;
+  position:relative;overflow:hidden;
+  animation:fUp .28s ease both;
+}
+.ohero.owed{background:linear-gradient(135deg,#fff1f4,#ffe0e6);border:1.5px solid #ffc0cc;}
+.ohero.owed::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(255,68,102,.12),transparent 70%);pointer-events:none;}
+.ohero.clear{background:linear-gradient(135deg,#f0fff8,#d6f9ec);border:1.5px solid #a0ead0;}
+.ohero.clear::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(0,199,119,.12),transparent 70%);pointer-events:none;}
+.oh-lbl{font-size:11px;font-weight:700;opacity:.6;letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px;}
+.oh-amt{font-size:38px;font-weight:800;line-height:1;letter-spacing:-1px;}
+.oh-st{font-size:13px;font-weight:600;margin-top:7px;opacity:.8;}
+.oh-chips{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+
+/* ── BUTTONS ── */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px 20px;border-radius:14px;
+  font-size:14px;font-weight:800;cursor:pointer;border:none;
+  transition:all .14s;font-family:'Plus Jakarta Sans',sans-serif;width:100%;
+}
+.btn:active{transform:scale(.97);}
+.btn-indigo{background:linear-gradient(135deg,var(--indigo),#7c8fff);color:#fff;box-shadow:0 4px 18px rgba(79,99,255,.3);}
+.btn-indigo:active{box-shadow:0 2px 8px rgba(79,99,255,.2);}
+.btn-ghost{background:var(--surface);color:var(--text2);border:1.5px solid var(--border2);}
+.btn-ghost:active{background:var(--border);}
+.btn-green{background:linear-gradient(135deg,#00c777,#00a888);color:#fff;box-shadow:0 4px 18px rgba(0,199,119,.25);}
+.btn-sm{padding:8px 15px;font-size:12px;border-radius:10px;width:auto;}
+.btn-wa{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;box-shadow:0 4px 18px rgba(37,211,102,.3);}
+
+/* ── SHEETS ── */
+.ovl{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(30,40,80,.45);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:none;align-items:flex-end;justify-content:center;
+}
+.ovl.open{display:flex;}
+.sheet{
+  background:var(--white);
+  border-radius:26px 26px 0 0;
+  border:1px solid var(--border);border-bottom:none;
+  width:100%;max-width:430px;
+  padding:14px 20px 40px;max-height:90vh;overflow-y:auto;
+  animation:shUp .24s cubic-bezier(.4,0,.2,1);
+}
+.sheet::-webkit-scrollbar{display:none;}
+@keyframes shUp{from{transform:translateY(100%);opacity:.6}to{transform:translateY(0);opacity:1}}
+.handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px;}
+.sh-title{font-size:20px;font-weight:800;margin-bottom:18px;color:var(--text);}
+.sh-sub{font-size:13px;color:var(--text3);margin:-12px 0 16px;line-height:1.6;}
+
+/* ── FORM ── */
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;}
+input,select{
+  width:100%;background:var(--surface);
+  border:1.5px solid var(--border);border-radius:13px;
+  color:var(--text);padding:13px 15px;
+  font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;
+  outline:none;transition:border .18s,background .18s;-webkit-appearance:none;
+}
+input::placeholder{color:var(--text3);}
+input:focus,select:focus{border-color:var(--indigo);background:var(--indigo-l);}
+select option{background:#fff;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── SEGMENT ── */
+.seg{display:flex;background:var(--surface);border-radius:13px;padding:4px;margin-bottom:14px;border:1px solid var(--border);}
+.sgo{flex:1;padding:10px;text-align:center;border-radius:10px;font-size:12px;font-weight:800;color:var(--text3);cursor:pointer;transition:all .18s;}
+.sgo.on{background:var(--white);color:var(--indigo);box-shadow:0 2px 8px rgba(79,99,255,.12);border:1px solid var(--indigo-p);}
+
+/* ── INFO BOX ── */
+.ib{border-radius:12px;padding:11px 13px;font-size:12px;font-weight:600;line-height:1.65;margin-bottom:14px;}
+.ib-i{background:var(--indigo-l);border:1px solid var(--indigo-p);color:var(--indigo);}
+.ib-g{background:var(--green-l);border:1px solid #b0ead0;color:#00966a;}
+.ib-a{background:var(--amber-l);border:1px solid #ffd080;color:#c06000;}
+.ib-r{background:var(--red-l);border:1px solid #ffc0cc;color:#c00030;}
+.ib-p{background:var(--purple-l);border:1px solid #c4b5fd;color:#5b21b6;}
+.ib-t{background:var(--teal-l);border:1px solid #a0e8e0;color:#007060;}
+
+/* ── MONTH LIST ── */
+.mi-wrap{background:var(--white);border-radius:var(--r);overflow:hidden;border:1px solid var(--border);}
+.mit{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .12s;
+}
+.mit:last-child{border-bottom:none;}
+.mit:active{background:var(--surface);}
+.mit.cur{background:var(--indigo-l);}
+
+/* ── DEDUCT ROW ── */
+.dr{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);}
+.dr:last-child{border-bottom:none;}
+
+/* ── HISTORY ── */
+.hi{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .12s;animation:fUp .28s ease both;
+}
+.hi:last-child{border-bottom:none;}
+.hi:active{background:var(--surface);}
+.hm-icon{
+  width:46px;height:46px;border-radius:14px;
+  background:var(--indigo-l);border:1px solid var(--indigo-p);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;color:var(--indigo);
+  flex-shrink:0;text-align:center;line-height:1.3;
+}
+
+/* ── TOTAL ROW ── */
+.trow{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;
+  background:var(--indigo-l);border-top:1.5px solid var(--indigo-p);
+}
+.trow-l{font-size:14px;font-weight:800;color:var(--indigo);}
+.trow-v{font-size:19px;font-weight:800;color:var(--indigo);}
+
+/* ── AUTO SYNC BADGE ── */
+.sync-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--green-l);border:1px solid #b0ead0;border-radius:20px;
+  padding:4px 10px;font-size:10px;font-weight:800;color:var(--green);
+}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:calc(var(--nav-h)+16px);
+  left:50%;transform:translateX(-50%) translateY(8px);
+  background:var(--text);color:#fff;border-radius:30px;
+  padding:11px 22px;font-size:13px;font-weight:700;
+  z-index:9999;opacity:0;transition:all .22s;white-space:nowrap;
+  pointer-events:none;box-shadow:0 8px 30px rgba(30,40,80,.25);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:36px 16px;}
+.ei{font-size:46px;display:block;margin-bottom:12px;}
+.et{font-size:16px;font-weight:800;margin-bottom:6px;}
+.es{font-size:13px;color:var(--text3);line-height:1.6;}
+
+/* ── WA SHARE MODAL ── */
+.wa-options{display:flex;flex-direction:column;gap:10px;}
+.wa-card{
+  display:flex;align-items:center;gap:14px;
+  padding:16px;border-radius:16px;
+  border:1.5px solid var(--border);background:var(--surface);
+  cursor:pointer;transition:all .15s;
+}
+.wa-card:active{background:var(--border);}
+.wa-card-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.wa-card-info{flex:1;}
+.wa-card-title{font-weight:800;font-size:15px;}
+.wa-card-sub{font-size:12px;color:var(--text3);margin-top:2px;}
+
+.gap{height:10px;} .div{height:1px;background:var(--border);margin:14px 0;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">
+    <div class="logo-icon">🏠</div>
+    RoomSplit
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <button id="installBtn" onclick="installApp()" style="display:none;background:var(--indigo-l);border:1.5px solid var(--indigo-p);border-radius:20px;padding:7px 12px;font-size:11px;font-weight:800;color:var(--indigo);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📲 Install</button>
+    <div class="month-pill" id="monthPillBtn">
+      <div class="m-dot"></div>
+      <span id="pillLabel">Select Month</span>
+      <span style="color:var(--indigo);opacity:.5;font-size:11px;">▾</span>
+    </div>
+  </div>
+</div>
+
+<!-- SCROLL -->
+<div class="scroll" id="main"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="ni on" id="ni-home" onclick="go('home')">
+    <div class="ni-wrap">🏠</div><span class="ni-lbl">Home</span>
+  </button>
+  <button class="ni" id="ni-members" onclick="go('members')">
+    <div class="ni-wrap">👥</div><span class="ni-lbl">Members</span>
+  </button>
+  <button class="ni" id="ni-bill" onclick="go('bill')">
+    <div class="ni-wrap">🧾</div><span class="ni-lbl">Bill</span>
+  </button>
+  <button class="ni" id="ni-owner" onclick="go('owner')">
+    <div class="ni-wrap">🏦</div><span class="ni-lbl">Owner</span>
+  </button>
+  <button class="ni" id="ni-history" onclick="go('history')">
+    <div class="ni-wrap">📁</div><span class="ni-lbl">History</span>
+  </button>
+</nav>
+
+<!-- ══════════ SHEETS ══════════ -->
+
+<!-- Month list -->
+<div class="ovl" id="s-months" onclick="bclose(event,'s-months')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sh-title">📅 Months</div>
+    <div id="mListEl"></div>
+    <div class="gap"></div>
+    <button class="btn btn-indigo" onclick="closeS('s-months');openS('s-newm')">＋ New Month</button>
+  </div>
+</div>
+
+<!-- New month -->
+<div class="ovl" id="s-newm" onclick="bclose(event,'s-newm')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sh-title">＋ Create Month</div>
+    <div class="ib ib-i">💡 Rent and electricity amounts you enter here will automatically appear in the Owner Ledger as charges. You can then log payments to track the balance.</div>
+    <div class="fg"><label>Month & Year</label><input type="month" id="nm-m"/></div>
+    <div class="frow">
+      <div class="fg"><label>Rent (AED)</label><input type="number" id="nm-r" placeholder="4000"/></div>
+      <div class="fg"><label>Electricity (AED)</label><input type="number" id="nm-e" placeholder="1000"/></div>
+    </div>
+    <div class="fg"><label>Other Expenses (AED)</label><input type="number" id="nm-o" placeholder="0"/></div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-indigo" onclick="createMonth()">✅ Create Month</button>
+      <button class="btn btn-ghost" onclick="closeS('s-newm')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add member -->
+<div class="ovl" id="s-mem" onclick="bclose(event,'s-mem')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sh-title">👤 Add Member</div>
+    <div class="fg"><label>Full Name</label><input id="mb-n" placeholder="e.g. Ahmed"/></div>
+    <div class="fg">
+      <label>Share Type</label>
+      <div class="seg" id="seg-t">
+        <div class="sgo on" onclick="setSeg('seg-t',this,'full')">🏠 Full Share</div>
+        <div class="sgo" onclick="setSeg('seg-t',this,'room_only')">🛏️ Room Only</div>
+      </div>
+      <input type="hidden" id="mb-t" value="full"/>
+    </div>
+    <div class="fg"><label>Floor Discount (AED) — 0 if none</label><input type="number" id="mb-d" placeholder="0"/></div>
+    <div class="ib ib-i">
+      🏠 <b>Full Share</b> = Rent + Electricity + Other<br/>
+      🛏️ <b>Room Only</b> = Rent only, no electricity/extras<br/>
+      🎁 <b>Floor Discount</b> = Less rent for floor sleeper, difference shared by all
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-indigo" onclick="addMember()">＋ Add Member</button>
+      <button class="btn btn-ghost" onclick="closeS('s-mem')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add deduction -->
+<div class="ovl" id="s-ded" onclick="bclose(event,'s-ded')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sh-title">💧 Room Expense</div>
+    <div class="ib ib-g">If a member paid for room water, cleaning, groceries — their share reduces by this amount.</div>
+    <div class="fg"><label>Member Who Paid</label><select id="ded-m"></select></div>
+    <div class="fg"><label>What for?</label><input id="ded-d" placeholder="Room water, cleaning…"/></div>
+    <div class="fg"><label>Amount (AED)</label><input type="number" id="ded-a" placeholder="0"/></div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-indigo" onclick="addDed()">✅ Save</button>
+      <button class="btn btn-ghost" onclick="closeS('s-ded')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Owner entry (manual only - non-auto) -->
+<div class="ovl" id="s-ow" onclick="bclose(event,'s-ow')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sh-title">🏦 Owner Entry</div>
+    <div class="fg">
+      <label>Type</label>
+      <select id="ow-t" onchange="owHint()">
+        <option value="payment">💸 We Paid Rent to Owner</option>
+        <option value="advance">⬆️ Advance Given to Owner</option>
+        <option value="other_charge">📦 Other Charge by Owner</option>
+        <option value="prev_balance">📋 Previous Balance (Carry)</option>
+        <option value="discount">🎁 Discount from Owner</option>
+      </select>
+    </div>
+    <div id="ow-hint-el"></div>
+    <div class="fg"><label>Amount (AED)</label><input type="number" id="ow-a" placeholder="0"/></div>
+    <div class="fg"><label>Note (optional)</label><input id="ow-n" placeholder="e.g. March rent payment"/></div>
+    <div class="fg"><label>Date</label><input type="date" id="ow-dt"/></div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-indigo" onclick="addOwnerEntry()">＋ Add</button>
+      <button class="btn btn-ghost" onclick="closeS('s-ow')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit costs -->
+<div class="ovl" id="s-ec" onclick="bclose(event,'s-ec')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sh-title">✏️ Edit Month Costs</div>
+    <div class="ib ib-a">⚡ Changing rent or electricity here will update the auto-entries in the Owner Ledger too.</div>
+    <div class="fg"><label>Rent (AED)</label><input type="number" id="ec-r"/></div>
+    <div class="frow">
+      <div class="fg"><label>Electricity (AED)</label><input type="number" id="ec-e"/></div>
+      <div class="fg"><label>Other (AED)</label><input type="number" id="ec-o"/></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-indigo" onclick="saveCosts()">💾 Save</button>
+      <button class="btn btn-ghost" onclick="closeS('s-ec')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Share Sheet -->
+<div class="ovl" id="s-wa" onclick="bclose(event,'s-wa')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sh-title">📤 Share Report</div>
+    <div class="sh-sub">Generate a PDF and share it directly to WhatsApp or any app.</div>
+    <div class="wa-options">
+      <div class="wa-card" onclick="shareReport('roommates')">
+        <div class="wa-card-icon" style="background:var(--indigo-l);">👥</div>
+        <div class="wa-card-info">
+          <div class="wa-card-title">Roommates Report</div>
+          <div class="wa-card-sub">Who owes what — share to room group</div>
+        </div>
+        <span style="font-size:22px;color:var(--indigo);">▶</span>
+      </div>
+      <div class="wa-card" onclick="shareReport('owner')">
+        <div class="wa-card-icon" style="background:var(--green-l);">🏦</div>
+        <div class="wa-card-info">
+          <div class="wa-card-title">Owner Ledger Report</div>
+          <div class="wa-card-sub">Full payment history — share to owner</div>
+        </div>
+        <span style="font-size:22px;color:var(--green);">▶</span>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div id="share-hint" class="ib ib-i" style="margin-bottom:0;font-size:12px;">
+      📱 <b>On mobile:</b> PDF will open the system share sheet — tap WhatsApp to send directly.<br/>
+      💻 <b>On desktop:</b> PDF downloads to your device — attach it manually in WhatsApp Web.
+    </div>
+  </div>
+</div>
+
+<!-- PDF Preview / Download Sheet -->
+<div class="ovl" id="s-pdfready" onclick="bclose(event,'s-pdfready')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sh-title">✅ PDF Ready!</div>
+    <div id="pdf-ready-content"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════
+const COLORS=['#4f63ff','#00c777','#ff4466','#ff9500','#8b5cf6','#00b8a2','#f97316','#06b6d4','#ec4899','#84cc16'];
+const CHARGE_TYPES=['rent_charge','elec_charge','other_charge','prev_balance'];
+const AUTO_TYPES=['rent_charge','elec_charge']; // auto-synced from month settings
+
+const OC={
+  rent_charge:  {label:'Rent (Auto)',        icon:'🏠',isCharge:true,  cls:'ib-r', auto:true},
+  elec_charge:  {label:'Electricity (Auto)', icon:'⚡',isCharge:true,  cls:'ib-a', auto:true},
+  other_charge: {label:'Other Charge',       icon:'📦',isCharge:true,  cls:'ib-p'},
+  payment:      {label:'Payment to Owner',   icon:'💸',isCharge:false, cls:'ib-g'},
+  advance:      {label:'Advance Given',      icon:'⬆️',isCharge:false, cls:'ib-g'},
+  prev_balance: {label:'Prev Balance',       icon:'📋',isCharge:true,  cls:'ib-i'},
+  discount:     {label:'Owner Discount',     icon:'🎁',isCharge:false, cls:'ib-g'},
+};
+
+const OW_HINTS={
+  payment:      {cls:'ib-g',txt:'💸 You paid the owner — this reduces your balance.'},
+  advance:      {cls:'ib-g',txt:'⬆️ Advance paid to owner — reduces future balance.'},
+  other_charge: {cls:'ib-p',txt:'📦 Extra charge from owner — increases balance owed.'},
+  prev_balance: {cls:'ib-i',txt:'📋 Outstanding balance from last month.'},
+  discount:     {cls:'ib-g',txt:'🎁 Owner gave a discount — reduces your balance.'},
+};
+
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+const KEY='rs6';
+function db(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function sdb(d){localStorage.setItem(KEY,JSON.stringify(d))}
+function gm(k){return db()[k]||null}
+function sm(k,m){const d=db();d[k]=m;sdb(d)}
+function gms(){return Object.keys(db()).sort().reverse()}
+
+function fresh(k,r,e,o){
+  return{key:k,rent:+r||0,elec:+e||0,other:+o||0,
+    members:[],deductions:[],payments:{},
+    ownerLedger:[] // auto entries generated on-the-fly
+  };
+}
+
+// ── AUTO-SYNC: build owner ledger = auto entries + manual entries
+// Auto entries = rent_charge & elec_charge from month settings
+// Manual entries = everything else user adds
+// We store ONLY manual entries; auto entries always come from rent/elec values.
+function fullLedger(m){
+  const auto=[];
+  if(m.rent>0)  auto.push({id:'__rent',type:'rent_charge',  amount:m.rent, note:'Monthly Rent',        date:m.key+'-01', auto:true});
+  if(m.elec>0)  auto.push({id:'__elec',type:'elec_charge',  amount:m.elec, note:'Electricity Bill',    date:m.key+'-01', auto:true});
+  if(m.other>0) auto.push({id:'__oth', type:'other_charge', amount:m.other,note:'Other Monthly Charge', date:m.key+'-01', auto:true});
+  return [...auto,...(m.ownerLedger||[])];
+}
+
+function ownerCalc(ledger){
+  let bal=0;
+  return ledger.map(e=>{
+    const c=OC[e.type]||{isCharge:true};
+    if(c.isCharge) bal+=e.amount; else bal-=e.amount;
+    return{...e,bal};
+  });
+}
+
+let CUR=null, PAGE='home';
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+window.onload=()=>{
+  const ms=gms(); if(ms.length) CUR=ms[0];
+  document.getElementById('nm-m').value=new Date().toISOString().slice(0,7);
+  document.getElementById('ow-dt').value=new Date().toISOString().slice(0,10);
+  document.getElementById('monthPillBtn').onclick=openMonthSheet;
+  owHint(); render();
+};
+
+// ═══════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════
+function go(p){
+  PAGE=p;
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('on'));
+  document.getElementById('ni-'+p)?.classList.add('on');
+  render();
+  document.getElementById('main').scrollTop=0;
+}
+
+// ═══════════════════════════════════════════════
+// SHEETS
+// ═══════════════════════════════════════════════
+function openS(id){document.getElementById(id).classList.add('open');}
+function closeS(id){document.getElementById(id).classList.remove('open');}
+function bclose(e,id){if(e.target.id===id)closeS(id);}
+
+// ═══════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════
+function render(){
+  updatePill();
+  const el=document.getElementById('main');
+  if(!CUR){el.innerHTML=renderWelcome();return;}
+  const m=gm(CUR);if(!m){el.innerHTML=renderWelcome();return;}
+  const pages={home:rHome,members:rMembers,bill:rBill,owner:rOwner,history:rHistory};
+  el.innerHTML=(pages[PAGE]||rHome)(m);
+}
+
+function updatePill(){
+  const el=document.getElementById('pillLabel');
+  if(!CUR){el.textContent='Select Month';return;}
+  el.textContent=new Date(CUR+'-01').toLocaleString('default',{month:'short',year:'numeric'});
+}
+
+// ═══════════════════════════════════════════════
+// BILL CALCULATION
+// ═══════════════════════════════════════════════
+function calcBill(m){
+  if(!m.members.length)return[];
+  const n=m.members.length;
+  const fullMs=m.members.filter(x=>x.shareType==='full');
+  const extraPer=fullMs.length?((m.elec||0)+(m.other||0))/fullMs.length:0;
+  const totalDisc=m.members.reduce((s,x)=>s+(x.discount||0),0);
+  return m.members.map(mem=>{
+    const rent=Math.max(0,m.rent/n-(mem.discount||0)+totalDisc/n);
+    const ex=mem.shareType==='full'?extraPer:0;
+    const deds=(m.deductions||[]).filter(d=>d.memberId===mem.id).reduce((s,d)=>s+d.amount,0);
+    return{...mem,rentShare:rent,extras:ex,deductions:deds,disc:mem.discount||0,netPayable:Math.max(0,rent+ex-deds)};
+  });
+}
+
+// ═══════════════════════════════════════════════
+// WELCOME
+// ═══════════════════════════════════════════════
+function renderWelcome(){
+  return`<div class="empty" style="margin-top:60px;">
+    <span class="ei">🏠</span>
+    <div class="et">Welcome to RoomSplit</div>
+    <div class="es">Your smart room rent manager for up to 9 roommates. Start by creating this month.</div>
+    <div style="height:28px;"></div>
+    <button class="btn btn-indigo" style="max-width:240px;margin:0 auto;" onclick="openS('s-newm')">＋ Create First Month</button>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════
+function rHome(m){
+  const c=calcBill(m);
+  const total=c.reduce((s,x)=>s+x.netPayable,0);
+  const paidAmt=c.filter(x=>m.payments[x.id]).reduce((s,x)=>s+x.netPayable,0);
+  const pendAmt=total-paidAmt;
+  const paidCnt=c.filter(x=>m.payments[x.id]).length;
+  const pct=total>0?(paidAmt/total*100):0;
+  const label=new Date(CUR+'-01').toLocaleString('default',{month:'long',year:'numeric'});
+  return`
+  <div class="hero">
+    <div class="hero-tag">📅 ${label}</div>
+    <div class="hero-amt">AED ${total.toFixed(0)}</div>
+    <div class="hero-sub">Total rent to collect · ${c.length} members</div>
+    <div class="prog-wrap"><div class="prog-fill" style="width:${pct.toFixed(1)}%"></div></div>
+    <div style="display:flex;justify-content:space-between;margin-top:5px;">
+      <span style="font-size:10px;opacity:.7;">${pct.toFixed(0)}% collected</span>
+      <span style="font-size:10px;opacity:.7;">${paidCnt}/${c.length} paid</span>
+    </div>
+    <div class="hero-pills">
+      <div class="hpill">✅ AED ${paidAmt.toFixed(0)} paid</div>
+      <div class="hpill">⏳ AED ${pendAmt.toFixed(0)} due</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="scard">
+      <div class="s-icon">🏠</div>
+      <div class="s-val" style="color:var(--indigo);">AED ${m.rent}</div>
+      <div class="s-lbl">Rent</div>
+    </div>
+    <div class="scard">
+      <div class="s-icon">⚡</div>
+      <div class="s-val" style="color:var(--amber);">AED ${m.elec||0}</div>
+      <div class="s-lbl">Electricity</div>
+    </div>
+    <div class="scard">
+      <div class="s-icon">📦</div>
+      <div class="s-val" style="color:var(--purple);">AED ${m.other||0}</div>
+      <div class="s-lbl">Other</div>
+    </div>
+    <div class="scard tap" onclick="openCostSheet()">
+      <div class="s-icon">✏️</div>
+      <div class="s-val" style="color:var(--text3);font-size:14px;">Edit</div>
+      <div class="s-lbl">Modify Costs</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <span class="sec-t">Payment Tracker</span>
+    <button class="sec-btn" onclick="openS('s-wa')">📤 Share</button>
+  </div>
+
+  ${c.length===0?`
+  <div class="card cp"><div class="empty" style="padding:16px 0;">
+    <span class="ei" style="font-size:36px;">👥</span>
+    <div class="et" style="font-size:15px;">No members yet</div>
+    <div class="es">Go to Members tab</div>
+  </div></div>`:`
+  <div class="card">
+    ${c.map((x,i)=>{const paid=m.payments[x.id];return`
+    <div class="mr" style="animation-delay:${i*.04}s">
+      <div class="av" style="background:${x.color}18;color:${x.color};">${x.name[0].toUpperCase()}</div>
+      <div class="mi">
+        <div class="mn">${x.name}</div>
+        <div class="ms">${x.shareType==='full'?'Full share':'Room only'}${x.disc>0?` · 🎁 -AED ${x.disc}`:''}</div>
+      </div>
+      <div class="mamt" style="margin-right:8px;">AED ${x.netPayable.toFixed(1)}</div>
+      <button class="ptog ${paid?'on':'off'}" onclick="togglePay('${x.id}')">${paid?'✓':'○'}</button>
+    </div>`;}).join('')}
+  </div>`}
+  <div class="gap"></div>`;
+}
+
+// ═══════════════════════════════════════════════
+// MEMBERS
+// ═══════════════════════════════════════════════
+function rMembers(m){
+  return`
+  <div class="sec">
+    <span class="sec-t">Roommates (${m.members.length})</span>
+    <button class="sec-btn" onclick="openS('s-mem')">＋ Add</button>
+  </div>
+  ${m.members.length===0?`
+  <div class="card cp"><div class="empty" style="padding:16px 0;">
+    <span class="ei" style="font-size:36px;">👤</span>
+    <div class="et" style="font-size:15px;">No members yet</div>
+    <div class="es">Tap + Add to get started</div>
+  </div></div>`:`
+  <div class="card">
+    ${m.members.map((mem,i)=>`
+    <div class="mr" style="animation-delay:${i*.04}s">
+      <div class="av" style="background:${mem.color}18;color:${mem.color};">${mem.name[0].toUpperCase()}</div>
+      <div class="mi">
+        <div class="mn">${mem.name}</div>
+        <div class="ms" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;">
+          <span class="bdg ${mem.shareType==='full'?'bdg-i':'bdg-a'}">${mem.shareType==='full'?'Full Share':'Room Only'}</span>
+          ${mem.discount>0?`<span class="bdg bdg-p">−AED ${mem.discount}</span>`:''}
+        </div>
+      </div>
+      <button class="rx" onclick="removeMember('${mem.id}')">✕</button>
+    </div>`).join('')}
+  </div>`}
+  <div class="card cp" style="margin-top:4px;">
+    <div class="ib ib-i" style="margin-bottom:8px;">🏠 <b>Full Share</b> — pays Rent + Electricity + Other expenses</div>
+    <div class="ib ib-a" style="margin-bottom:8px;">🛏️ <b>Room Only</b> — pays Rent only, no electricity or extras</div>
+    <div class="ib ib-p" style="margin-bottom:0;">🎁 <b>Floor Discount</b> — less rent for floor sleeper; difference is shared equally among all members</div>
+  </div>
+  <div class="gap"></div>`;
+}
+
+// ═══════════════════════════════════════════════
+// BILL
+// ═══════════════════════════════════════════════
+function rBill(m){
+  const c=calcBill(m);
+  const total=c.reduce((s,x)=>s+x.netPayable,0);
+  return`
+  <div class="sec">
+    <span class="sec-t">Room Expense Deductions</span>
+    <button class="sec-btn" onclick="openDedSheet()">＋ Add</button>
+  </div>
+  <div class="card">
+    ${(m.deductions||[]).length===0?
+    `<div class="cp" style="text-align:center;color:var(--text3);font-size:13px;padding:20px 16px;">No deductions yet. If someone paid for water, cleaning etc., add it here and their share reduces automatically.</div>`
+    :(m.deductions||[]).map((d,i)=>{
+      const mem=m.members.find(x=>x.id===d.memberId);
+      return`<div class="dr">
+        <div class="av" style="width:36px;height:36px;font-size:13px;background:${mem?.color||'#888'}18;color:${mem?.color||'#888'};">${mem?.name?.[0]||'?'}</div>
+        <div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:13px;">${mem?.name||'?'}</div><div style="font-size:11px;color:var(--text3);">${d.desc}</div></div>
+        <div style="font-weight:800;color:var(--green);font-size:14px;margin-right:8px;">−AED ${d.amount}</div>
+        <button class="rx" onclick="removeDed(${i})">✕</button>
+      </div>`;}).join('')}
+  </div>
+
+  <div class="sec"><span class="sec-t">Per Member Breakdown</span></div>
+  ${c.length===0?`<div class="card cp" style="text-align:center;color:var(--text3);">Add members first.</div>`:`
+  <div class="card">
+    ${c.map((x,i)=>`
+    <div class="mr" style="animation-delay:${i*.04}s">
+      <div class="av" style="background:${x.color}18;color:${x.color};">${x.name[0].toUpperCase()}</div>
+      <div class="mi">
+        <div class="mn" style="font-size:13px;">${x.name}</div>
+        <div class="ms">Rent ${x.rentShare.toFixed(1)}${x.extras>0?` + Extra ${x.extras.toFixed(1)}`:''}${x.disc>0?` − Disc ${x.disc}`:''}${x.deductions>0?` − Ded ${x.deductions.toFixed(1)}`:''}</div>
+      </div>
+      <div class="mamt">AED ${x.netPayable.toFixed(2)}</div>
+    </div>`).join('')}
+    <div class="trow"><div class="trow-l">Total</div><div class="trow-v">AED ${total.toFixed(2)}</div></div>
+  </div>`}
+  <div class="gap"></div>`;
+}
+
+// ═══════════════════════════════════════════════
+// OWNER LEDGER
+// ═══════════════════════════════════════════════
+function rOwner(m){
+  const ledger=fullLedger(m);
+  const withBal=ownerCalc(ledger);
+  const finalBal=withBal.length?withBal[withBal.length-1].bal:0;
+  const totalCharged=ledger.filter(e=>OC[e.type]?.isCharge).reduce((s,e)=>s+e.amount,0);
+  const totalPaid=ledger.filter(e=>!OC[e.type]?.isCharge).reduce((s,e)=>s+e.amount,0);
+  const isOwed=finalBal>0;
+
+  return`
+  <div class="ohero ${isOwed?'owed':'clear'}">
+    <div class="oh-lbl">Owner Balance</div>
+    <div class="oh-amt" style="color:${isOwed?'var(--red)':'var(--green)'};">AED ${Math.abs(finalBal).toFixed(0)}</div>
+    <div class="oh-st">${isOwed?'⚠️ Amount still owed to owner':'✅ All clear — nothing owed!'}</div>
+    <div class="oh-chips">
+      <div class="bdg bdg-r">🏠 Charged AED ${totalCharged.toFixed(0)}</div>
+      <div class="bdg bdg-g">💸 Paid AED ${totalPaid.toFixed(0)}</div>
+    </div>
+  </div>
+
+  <div class="card cp" style="margin-bottom:12px;">
+    <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">How this works</div>
+    <div style="font-size:12px;color:var(--text3);line-height:2;">
+      <span class="bdg bdg-r" style="font-size:10px;">🏠 Rent  ⚡ Electricity  📦 Other</span> → adds to what you owe<br/>
+      <span class="bdg bdg-g" style="font-size:10px;">💸 Payments  ⬆️ Advance  🎁 Discount</span> → reduces balance<br/>
+      <span style="margin-top:4px;display:block;">🔄 <b>Rent & Electricity auto-appear</b> from month settings.<br/><span class="sync-badge" style="margin-top:4px;">🔄 Auto-synced</span> entries cannot be deleted — edit via home screen.</span>
+    </div>
+  </div>
+
+  <div class="sec">
+    <span class="sec-t">Transaction Ledger</span>
+    <button class="sec-btn" onclick="openOwnerSheet()">＋ Add</button>
+  </div>
+
+  <div class="card">
+    ${withBal.length===0?`<div class="cp empty" style="padding:20px 0;">
+      <span class="ei" style="font-size:32px;">🏦</span>
+      <div class="et" style="font-size:15px;">No entries yet</div>
+      <div class="es">Rent & electricity will auto-appear once set.</div>
+    </div>`:`
+    ${withBal.map((e,i)=>{
+      const t=OC[e.type]||{label:e.type,icon:'•',isCharge:true};
+      const balClr=e.bal<=0?'var(--green)':'var(--red)';
+      return`<div class="le" style="animation-delay:${i*.04}s">
+        <div class="li" style="background:${t.isCharge?'var(--red-l)':'var(--green-l)'};">${t.icon}</div>
+        <div class="lm">
+          <div class="lt" style="display:flex;align-items:center;gap:6px;">
+            ${t.label}
+            ${e.auto?`<span class="sync-badge" style="font-size:9px;padding:2px 7px;">🔄 Auto</span>`:''}
+          </div>
+          <div class="ls">${e.note?e.note+' · ':''}${e.date||''}</div>
+          <div class="lb" style="color:${balClr};">
+            <span style="color:var(--text3);font-size:10px;">Balance after:</span>
+            AED ${Math.abs(e.bal).toFixed(0)} ${e.bal<=0?'✅':'⚠️'}
+          </div>
+        </div>
+        <div class="lr">
+          <div class="la" style="color:${t.isCharge?'var(--red)':'var(--green)'};">${t.isCharge?'+':'−'}AED ${e.amount}</div>
+          ${!e.auto?`<button class="rx" onclick="removeOwnerE('${e.id}')">✕</button>`:''}
+        </div>
+      </div>`;}).join('')}`}
+  </div>
+
+  <div class="gap"></div>
+  <button class="btn btn-ghost" onclick="openS('s-wa')">📤 Share Owner Report via WhatsApp</button>
+  <div class="gap"></div>`;
+}
+
+// ═══════════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════════
+function rHistory(){
+  const ms=gms();
+  return`
+  <div class="sec">
+    <span class="sec-t">All Months (${ms.length})</span>
+    <button class="sec-btn" onclick="openS('s-newm')">＋ New</button>
+  </div>
+  ${ms.length===0?`<div class="card cp"><div class="empty" style="padding:16px 0;"><span class="ei">📅</span><div class="et">No months saved yet</div></div></div>`:`
+  <div class="card">
+    ${ms.map((k,i)=>{
+      const mo=gm(k);
+      const d=new Date(k+'-01');
+      const mon=d.toLocaleString('default',{month:'short'});
+      const yr=d.getFullYear();
+      const c=calcBill(mo);
+      const total=c.reduce((s,x)=>s+x.netPayable,0);
+      const paidCnt=c.filter(x=>mo.payments[x.id]).length;
+      const fl=fullLedger(mo);const wB=ownerCalc(fl);
+      const owBal=wB.length?wB[wB.length-1].bal:0;
+      return`<div class="hi" style="animation-delay:${i*.04}s" onclick="pickMonth('${k}')">
+        <div class="hm-icon">${mon}<br/>${yr}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:14px;">${d.toLocaleString('default',{month:'long',year:'numeric'})}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;">AED ${mo.rent} rent · ${mo.members.length} members · ${paidCnt}/${c.length} paid</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-weight:800;font-size:13px;color:var(--indigo);">AED ${total.toFixed(0)}</div>
+          <div style="font-size:11px;font-weight:700;color:${owBal<=0?'var(--green)':'var(--red)'};">${owBal<=0?'Owner ✅':'Owes AED '+Math.abs(owBal).toFixed(0)}</div>
+        </div>
+        <span style="color:var(--text3);font-size:20px;margin-left:4px;">›</span>
+      </div>`;}).join('')}
+  </div>`}
+  <div class="gap"></div>`;
+}
+
+// ═══════════════════════════════════════════════
+// MONTH SHEET
+// ═══════════════════════════════════════════════
+function openMonthSheet(){
+  const ms=gms();
+  const el=document.getElementById('mListEl');
+  if(!ms.length){
+    el.innerHTML=`<div class="ib ib-i">No months yet. Create one below!</div>`;
+  } else {
+    el.innerHTML=`<div class="mi-wrap">
+      ${ms.map(k=>{
+        const d=new Date(k+'-01');
+        return`<div class="mit ${k===CUR?'cur':''}" onclick="pickMonth('${k}');closeS('s-months');">
+          <div style="width:8px;height:8px;border-radius:50%;background:${k===CUR?'var(--indigo)':'var(--text3)'};flex-shrink:0;"></div>
+          <div style="flex:1;font-weight:700;font-size:14px;">${d.toLocaleString('default',{month:'long',year:'numeric'})}</div>
+          ${k===CUR?`<span class="bdg bdg-i">Active</span>`:''}
+        </div>`;}).join('')}
+    </div>`;
+  }
+  openS('s-months');
+}
+
+function pickMonth(k){
+  CUR=k; render();
+  toast('📅 '+new Date(k+'-01').toLocaleString('default',{month:'long',year:'numeric'}));
+}
+
+function createMonth(){
+  const k=document.getElementById('nm-m').value;
+  if(!k){toast('⚠️ Select a month');return;}
+  const rent=document.getElementById('nm-r').value;
+  if(!rent){toast('⚠️ Enter rent amount');return;}
+  let m=gm(k);
+  if(m){
+    m.rent=+rent;m.elec=+document.getElementById('nm-e').value||0;
+    m.other=+document.getElementById('nm-o').value||0;
+  } else {
+    m=fresh(k,rent,document.getElementById('nm-e').value,document.getElementById('nm-o').value);
+    const prev=gms(); if(prev.length){const lm=gm(prev[0]);if(lm?.members?.length)m.members=lm.members.map(x=>({...x}));}
+  }
+  sm(k,m);CUR=k;closeS('s-newm');render();
+  toast('✅ Month created! Rent & electricity auto-added to Owner Ledger.');
+}
+
+// ═══════════════════════════════════════════════
+// MEMBERS
+// ═══════════════════════════════════════════════
+function setSeg(sid,el,val){
+  document.querySelectorAll('#'+sid+' .sgo').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+  if(sid==='seg-t')document.getElementById('mb-t').value=val;
+}
+function addMember(){
+  const name=document.getElementById('mb-n').value.trim();
+  if(!name){toast('⚠️ Enter a name');return;}
+  const m=gm(CUR);
+  m.members.push({id:Date.now().toString(),name,shareType:document.getElementById('mb-t').value,
+    discount:+document.getElementById('mb-d').value||0,color:COLORS[m.members.length%COLORS.length]});
+  sm(CUR,m);closeS('s-mem');
+  document.getElementById('mb-n').value='';document.getElementById('mb-d').value='';
+  render();toast('👤 '+name+' added!');
+}
+function removeMember(id){
+  const m=gm(CUR);m.members=m.members.filter(x=>x.id!==id);sm(CUR,m);render();toast('Member removed');
+}
+
+// ═══════════════════════════════════════════════
+// DEDUCTIONS
+// ═══════════════════════════════════════════════
+function openDedSheet(){
+  const m=gm(CUR);if(!m.members.length){toast('⚠️ Add members first');return;}
+  document.getElementById('ded-m').innerHTML=m.members.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');
+  document.getElementById('ded-d').value='';document.getElementById('ded-a').value='';
+  openS('s-ded');
+}
+function addDed(){
+  const amt=+document.getElementById('ded-a').value;
+  if(!amt){toast('⚠️ Enter amount');return;}
+  const m=gm(CUR);
+  m.deductions.push({id:Date.now().toString(),memberId:document.getElementById('ded-m').value,
+    desc:document.getElementById('ded-d').value.trim()||'Room expense',amount:amt});
+  sm(CUR,m);closeS('s-ded');render();toast('💧 Deduction added!');
+}
+function removeDed(i){
+  const m=gm(CUR);m.deductions.splice(i,1);sm(CUR,m);render();toast('Removed');
+}
+
+// ═══════════════════════════════════════════════
+// OWNER
+// ═══════════════════════════════════════════════
+function owHint(){
+  const type=document.getElementById('ow-t').value;
+  const h=OW_HINTS[type];const el=document.getElementById('ow-hint-el');
+  el.innerHTML=h?`<div class="ib ${h.cls}">${h.txt}</div>`:'';
+}
+function openOwnerSheet(){
+  document.getElementById('ow-a').value='';document.getElementById('ow-n').value='';
+  document.getElementById('ow-dt').value=new Date().toISOString().slice(0,10);
+  owHint();openS('s-ow');
+}
+function addOwnerEntry(){
+  const amt=+document.getElementById('ow-a').value;
+  if(!amt){toast('⚠️ Enter amount');return;}
+  const m=gm(CUR);if(!m.ownerLedger)m.ownerLedger=[];
+  m.ownerLedger.push({id:Date.now().toString(),type:document.getElementById('ow-t').value,
+    amount:amt,note:document.getElementById('ow-n').value.trim(),
+    date:document.getElementById('ow-dt').value});
+  sm(CUR,m);closeS('s-ow');render();toast('🏦 Entry added!');
+}
+function removeOwnerE(id){
+  const m=gm(CUR);m.ownerLedger=m.ownerLedger.filter(e=>e.id!==id);sm(CUR,m);render();toast('Removed');
+}
+
+// ═══════════════════════════════════════════════
+// EDIT COSTS
+// ═══════════════════════════════════════════════
+function openCostSheet(){
+  const m=gm(CUR);
+  document.getElementById('ec-r').value=m.rent;
+  document.getElementById('ec-e').value=m.elec;
+  document.getElementById('ec-o').value=m.other||0;
+  openS('s-ec');
+}
+function saveCosts(){
+  const m=gm(CUR);
+  m.rent=+document.getElementById('ec-r').value||m.rent;
+  m.elec=+document.getElementById('ec-e').value||0;
+  m.other=+document.getElementById('ec-o').value||0;
+  sm(CUR,m);closeS('s-ec');render();toast('✅ Costs updated! Owner Ledger auto-updated.');
+}
+
+// ═══════════════════════════════════════════════
+// PAYMENT TOGGLE
+// ═══════════════════════════════════════════════
+function togglePay(id){
+  const m=gm(CUR);m.payments[id]=!m.payments[id];sm(CUR,m);render();
+  toast(m.payments[id]?'✅ Marked as paid!':'↩️ Undone');
+}
+
+// ═══════════════════════════════════════════════
+// SHARE — Web Share API (mobile) + download fallback (desktop)
+// ═══════════════════════════════════════════════
+function shareReport(type){
+  closeS('s-wa');
+  toast('⏳ Generating PDF…');
+  setTimeout(()=>{
+    const {blob,fname,summary} = type==='roommates' ? buildRoommatesPDF() : buildOwnerPDF();
+    doShare(blob, fname, summary);
+  }, 400);
+}
+
+async function doShare(blob, fname, summary){
+  const file = new File([blob], fname, {type:'application/pdf'});
+
+  // ── Try native share (works on mobile Chrome/Safari — can share file to WhatsApp directly)
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({
+        files:[file],
+        title:'RoomSplit Report',
+        text: summary
+      });
+      toast('✅ Shared successfully!');
+      return;
+    }catch(e){
+      if(e.name==='AbortError') return; // user cancelled — don't fallback
+    }
+  }
+
+  // ── Fallback: download PDF + show instructions with WhatsApp text button
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=fname; a.click();
+  setTimeout(()=> URL.revokeObjectURL(url), 2000);
+
+  // Show ready sheet with clear instructions
+  const waText = encodeURIComponent(summary);
+  document.getElementById('pdf-ready-content').innerHTML = `
+    <div class="ib ib-g" style="margin-bottom:16px;">
+      ✅ <b>PDF downloaded!</b> Check your Downloads folder.
+    </div>
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:800;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;">📱 How to send on WhatsApp</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:24px;height:24px;border-radius:50%;background:var(--indigo-l);color:var(--indigo);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;">1</div>
+          <div style="font-size:13px;color:var(--text2);">Open <b>WhatsApp</b> and go to the chat (room group or owner)</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:24px;height:24px;border-radius:50%;background:var(--indigo-l);color:var(--indigo);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;">2</div>
+          <div style="font-size:13px;color:var(--text2);">Tap the 📎 attachment icon → select <b>Document</b></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:24px;height:24px;border-radius:50%;background:var(--indigo-l);color:var(--indigo);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;">3</div>
+          <div style="font-size:13px;color:var(--text2);">Find <b>${fname}</b> in Downloads and send</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-wa" onclick="window.open('https://wa.me/?text=${waText}','_blank')">
+        <span style="font-size:20px;">💬</span> Open WhatsApp with Summary Text
+      </button>
+      <div style="font-size:11px;color:var(--text3);text-align:center;">This sends the text summary. Attach the PDF separately.</div>
+      <button class="btn btn-ghost" onclick="closeS('s-pdfready')">Done</button>
+    </div>`;
+  openS('s-pdfready');
+}
+
+// ═══════════════════════════════════════════════
+// PDF BUILDERS
+// ═══════════════════════════════════════════════
+function buildRoommatesPDF(){
+  const m=gm(CUR);
+  const {jsPDF}=window.jspdf; const doc=new jsPDF();
+  const label=new Date(CUR+'-01').toLocaleString('default',{month:'long',year:'numeric'});
+  const c=calcBill(m);
+  const total=c.reduce((s,x)=>s+x.netPayable,0);
+  const paidAmt=c.filter(x=>m.payments[x.id]).reduce((s,x)=>s+x.netPayable,0);
+  const pendAmt=total-paidAmt;
+
+  doc.setFillColor(79,99,255); doc.rect(0,0,210,46,'F');
+  doc.setFillColor(100,130,255); doc.rect(0,0,105,46,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(21); doc.setFont('helvetica','bold'); doc.text('RoomSplit',14,20);
+  doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text('Roommates Rent Report — '+label,14,32);
+  doc.text('Generated: '+new Date().toLocaleString(),14,41);
+
+  let y=56;
+  doc.setFillColor(238,240,255); doc.roundedRect(14,y,182,22,4,4,'F');
+  doc.setTextColor(79,99,255); doc.setFontSize(8); doc.setFont('helvetica','bold');
+  doc.text(`RENT: AED ${m.rent}   ELECTRICITY: AED ${m.elec}   OTHER: AED ${m.other||0}   MEMBERS: ${m.members.length}`,20,y+8);
+  doc.setTextColor(26,29,58); doc.setFont('helvetica','normal');
+  doc.text(`Total: AED ${total.toFixed(2)}   Collected: AED ${paidAmt.toFixed(2)}   Pending: AED ${pendAmt.toFixed(2)}`,20,y+16);
+  y+=30;
+
+  doc.setFillColor(79,99,255); doc.rect(14,y,182,9,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+  const cx=[14,52,80,106,124,144,164,185];
+  ['Name','Type','Rent','Extras','Disc.','Deduct.','Net Due','Status'].forEach((h,i)=>doc.text(h,cx[i],y+6));
+  y+=11;
+
+  c.forEach((x,ri)=>{
+    doc.setFillColor(ri%2===0?248:242, ri%2===0?249:244, ri%2===0?255:255);
+    doc.rect(14,y-1,182,10,'F');
+    const paid=m.payments[x.id];
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+    const row=[x.name.slice(0,14), x.shareType==='full'?'Full':'Room',
+      x.rentShare.toFixed(0), x.extras>0?x.extras.toFixed(0):'-',
+      x.disc>0?`-${x.disc}`:'-', x.deductions>0?`-${x.deductions.toFixed(0)}`:'-',
+      `AED ${x.netPayable.toFixed(2)}`, paid?'PAID':'PENDING'];
+    row.forEach((v,i)=>{
+      if(i===7) doc.setTextColor(paid?0:200, paid?160:0, paid?80:40);
+      else if(i===6) doc.setTextColor(79,99,255);
+      else doc.setTextColor(26,29,58);
+      doc.text(v,cx[i],y+6);
+    });
+    y+=10; if(y>275){doc.addPage();y=20;}
+  });
+
+  y+=6; doc.setTextColor(150,160,180); doc.setFontSize(7.5);
+  doc.text('Generated by RoomSplit · '+new Date().toLocaleDateString(),14,y);
+
+  const fname=`RoomSplit_Roommates_${label.replace(/\s/g,'_')}.pdf`;
+  const summary=`🏠 *RoomSplit — ${label}*\n\nHi team! Rent report for ${label}:\n\n💰 Total: AED ${total.toFixed(0)}\n✅ Collected: AED ${paidAmt.toFixed(0)}\n⏳ Pending: AED ${pendAmt.toFixed(0)}\n👥 ${c.filter(x=>m.payments[x.id]).length}/${c.length} members paid\n\n_See attached PDF for full breakdown._\n_Generated by RoomSplit_`;
+  return {blob:doc.output('blob'), fname, summary};
+}
+
+function buildOwnerPDF(){
+  const m=gm(CUR);
+  const {jsPDF}=window.jspdf; const doc=new jsPDF();
+  const label=new Date(CUR+'-01').toLocaleString('default',{month:'long',year:'numeric'});
+  const ledger=fullLedger(m);
+  const withBal=ownerCalc(ledger);
+  const finalBal=withBal.length?withBal[withBal.length-1].bal:0;
+  const totalCharged=ledger.filter(e=>OC[e.type]?.isCharge).reduce((s,e)=>s+e.amount,0);
+  const totalPaid=ledger.filter(e=>!OC[e.type]?.isCharge).reduce((s,e)=>s+e.amount,0);
+  const isOwed=finalBal>0;
+
+  doc.setFillColor(isOwed?200:0, isOwed?40:160, isOwed?60:90);
+  doc.rect(0,0,210,46,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(21); doc.setFont('helvetica','bold'); doc.text('RoomSplit',14,20);
+  doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text('Owner Account Ledger — '+label,14,32);
+  doc.text('Balance: AED '+Math.abs(finalBal).toFixed(2)+(finalBal<=0?' (All Clear)':' (Still Owed)'),14,41);
+
+  let y=56;
+  doc.setFillColor(isOwed?255:220, isOwed?230:255, isOwed?230:238);
+  doc.roundedRect(14,y,182,14,3,3,'F');
+  doc.setTextColor(26,29,58); doc.setFontSize(8);
+  doc.text(`Charged: AED ${totalCharged.toFixed(2)}   Paid: AED ${totalPaid.toFixed(2)}   Balance: AED ${Math.abs(finalBal).toFixed(2)} ${finalBal<=0?'(Clear)':'(Owed)'}`,20,y+9);
+  y+=22;
+
+  doc.setFillColor(0,140,80); doc.rect(14,y,182,9,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+  [14,48,90,124,154,176].forEach((x,i)=>doc.text(['Date','Type','Note','Amount','Dir','Bal After'][i],x,y+6));
+  y+=11;
+
+  withBal.forEach((e,ri)=>{
+    doc.setFillColor(ri%2===0?248:242, ri%2===0?255:252, ri%2===0?252:248);
+    doc.rect(14,y-1,182,10,'F');
+    const t=OC[e.type]||{label:e.type,isCharge:true};
+    const isCh=t.isCharge;
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+    doc.setTextColor(26,29,58);
+    doc.text(e.date||'',14,y+6);
+    doc.text(t.label.slice(0,18),48,y+6);
+    doc.text((e.note||'').slice(0,12),90,y+6);
+    doc.setTextColor(isCh?200:0, isCh?0:160, isCh?40:90);
+    doc.text((isCh?'+':'-')+'AED '+e.amount,124,y+6);
+    doc.text(isCh?'CHARGE':'PAYMENT',154,y+6);
+    doc.setTextColor(e.bal<=0?0:200, e.bal<=0?160:0, e.bal<=0?90:40);
+    doc.text('AED '+Math.abs(e.bal).toFixed(0)+(e.bal<=0?' ✓':''),176,y+6);
+    y+=10; if(y>275){doc.addPage();y=20;}
+  });
+
+  y+=6; doc.setTextColor(150,160,180); doc.setFontSize(7.5);
+  doc.text('Generated by RoomSplit · '+new Date().toLocaleDateString(),14,y);
+
+  const fname=`RoomSplit_Owner_${label.replace(/\s/g,'_')}.pdf`;
+  const summary=`🏠 *RoomSplit — Owner Account*\n*${label}*\n\n📊 Account Summary:\n🏠 Total Charged: AED ${totalCharged.toFixed(0)}\n💸 Total Paid: AED ${totalPaid.toFixed(0)}\n${finalBal<=0?'✅ Balance: CLEAR — nothing owed':'⚠️ Still Owed to Owner: AED '+Math.abs(finalBal).toFixed(0)}\n\n_See attached PDF for full transaction ledger._\n_Generated by RoomSplit_`;
+  return {blob:doc.output('blob'), fname, summary};
+}
+
+// ═══════════════════════════════════════════════
+// PWA INSTALL PROMPT
+// ═══════════════════════════════════════════════
+let _installPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _installPrompt = e;
+  const btn = document.getElementById('installBtn');
+  if(btn) btn.style.display = 'block';
+});
+
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('installBtn');
+  if(btn) btn.style.display = 'none';
+  toast('✅ RoomSplit installed as app!');
+});
+
+async function installApp() {
+  if (_installPrompt) {
+    _installPrompt.prompt();
+    const { outcome } = await _installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      _installPrompt = null;
+      document.getElementById('installBtn').style.display = 'none';
+    }
+  } else {
+    // Show manual instructions
+    toast('Use browser menu → "Add to Home Screen"');
+    setTimeout(()=>{
+      document.getElementById('pdf-ready-content').innerHTML = `
+        <div class="ib ib-i" style="margin-bottom:16px;">📲 <b>Install RoomSplit as an App</b></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="background:var(--surface);border-radius:14px;padding:14px;border:1px solid var(--border);">
+            <div style="font-weight:800;font-size:13px;margin-bottom:8px;">🤖 Android (Chrome)</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.8;">1. Tap ⋮ menu (top right)<br/>2. Tap <b>"Add to Home Screen"</b><br/>3. Tap Add ✅</div>
+          </div>
+          <div style="background:var(--surface);border-radius:14px;padding:14px;border:1px solid var(--border);">
+            <div style="font-weight:800;font-size:13px;margin-bottom:8px;">🍎 iPhone (Safari)</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.8;">1. Tap Share button □↑ (bottom)<br/>2. Scroll → tap <b>"Add to Home Screen"</b><br/>3. Tap Add ✅</div>
+          </div>
+        </div>
+        <div class="gap"></div>
+        <button class="btn btn-ghost" onclick="closeS('s-pdfready')">Got it</button>`;
+      openS('s-pdfready');
+    }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>
