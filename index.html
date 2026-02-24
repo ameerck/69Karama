@@ -5,619 +5,365 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"/>
 <title>RoomSplit</title>
 <link rel="manifest" href="/69Karama/manifest.json"/>
-<meta name="application-name" content="RoomSplit"/>
-<meta name="description" content="Smart room rent management for roommates"/>
-<meta name="theme-color" content="#4f63ff"/>
+<meta name="theme-color" content="#4361ee"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="RoomSplit"/>
 <link rel="apple-touch-icon" href="https://ameerck.github.io/69Karama/icon-192.png"/>
 <script>
 if('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/69Karama/sw.js', {scope: '/69Karama/'}).catch(()=>{});
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/69Karama/sw.js',{scope:'/69Karama/'}).catch(()=>{});
   });
 }
 </script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-:root {
-  --bg:       #f5f7ff;
-  --white:    #ffffff;
-  --surface:  #f0f3ff;
-  --border:   #e8ecf8;
-  --border2:  #d4daf5;
-
-  --indigo:   #4f63ff;
-  --indigo-d: #3a4fd4;
-  --indigo-l: #eef0ff;
-  --indigo-p: #dde1ff;
-
-  --teal:     #00b8a2;
-  --teal-l:   #e0faf7;
-  --green:    #00c777;
-  --green-l:  #d6f9ec;
-  --red:      #ff4466;
-  --red-l:    #ffe0e6;
-  --amber:    #ff9500;
-  --amber-l:  #fff3e0;
-  --purple:   #8b5cf6;
-  --purple-l: #ede9fe;
-
-  --text:     #1a1d3a;
-  --text2:    #5a6080;
-  --text3:    #99a0c0;
-
-  --nav-h:    70px;
-  --hdr-h:    62px;
-  --r:        18px;
-  --sh: 0 2px 20px rgba(79,99,255,.08);
-  --sh2:0 8px 40px rgba(79,99,255,.14);
-}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;overflow:hidden;}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:14px;
-  display:flex;flex-direction:column;
-  max-width:430px;margin:0 auto;
-  box-shadow:0 0 80px rgba(79,99,255,.10);
+:root{
+  --bg:#f0f2fc; --white:#fff; --surface:#eaecf8;
+  --border:#dde1f5; --border2:#c8ceed;
+  --blue:#4361ee; --blue-d:#3451d1; --blue-l:#eef0ff; --blue-p:#d5daff;
+  --indigo:#4361ee; --indigo-l:#eef0ff; --indigo-p:#d5daff;
+  --green:#10b981; --green-l:#d1fae5; --green-d:#059669;
+  --red:#ef4444; --red-l:#fee2e2;
+  --amber:#f59e0b; --amber-l:#fef3c7;
+  --purple:#8b5cf6; --purple-l:#ede9fe;
+  --text:#1e2448; --text2:#4b5280; --text3:#8890b8;
+  --nav-h:64px; --hdr-h:58px; --r:16px;
 }
+
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
+body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;}
+svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 
 /* ── HEADER ── */
-.hdr{
-  height:var(--hdr-h);flex-shrink:0;
-  background:var(--white);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 18px;
-  position:relative;z-index:60;
-  box-shadow:0 1px 12px rgba(79,99,255,.07);
-}
-.logo{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.4px;}
-.logo-icon{
-  width:38px;height:38px;border-radius:12px;
-  background:linear-gradient(135deg,var(--indigo),#7c8fff);
-  display:flex;align-items:center;justify-content:center;font-size:18px;
-  box-shadow:0 4px 14px rgba(79,99,255,.35);
-}
-.month-pill{
-  display:flex;align-items:center;gap:7px;
-  background:var(--indigo-l);border:1.5px solid var(--indigo-p);
-  border-radius:30px;padding:8px 14px;
-  font-size:12px;font-weight:700;color:var(--indigo);cursor:pointer;
-  transition:all .18s;
-}
-.month-pill:active{background:var(--indigo-p);}
-.m-dot{width:7px;height:7px;border-radius:50%;background:var(--indigo);animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hdr{height:var(--hdr-h);flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:60;box-shadow:0 1px 8px rgba(67,97,238,.06);}
+.logo{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:700;letter-spacing:-.3px;}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#4361ee,#7c8fff);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(67,97,238,.3);color:#fff;flex-shrink:0;}
+#installBtn{display:none;background:var(--blue-l);border:1.5px solid var(--blue-p);border-radius:20px;padding:6px 11px;font-size:11px;font-weight:700;color:var(--blue);cursor:pointer;font-family:'DM Sans',sans-serif;align-items:center;gap:5px;}
+.mpill{display:flex;align-items:center;gap:6px;background:var(--blue-l);border:1.5px solid var(--blue-p);border-radius:30px;padding:7px 13px;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;transition:background .15s;user-select:none;}
+.mpill:active{background:var(--blue-p);}
+.mpill-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:blink 2s infinite;flex-shrink:0;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
 /* ── SCROLL ── */
-.scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:18px 16px calc(var(--nav-h)+20px);-webkit-overflow-scrolling:touch;}
+.scroll{flex:1;overflow-y:auto;padding:14px 14px calc(var(--nav-h) + 16px);-webkit-overflow-scrolling:touch;}
 .scroll::-webkit-scrollbar{display:none;}
 
-/* ── BOTTOM NAV ── */
-.nav{
-  height:var(--nav-h);flex-shrink:0;
-  background:var(--white);border-top:1px solid var(--border);
-  display:flex;position:relative;z-index:60;
-  box-shadow:0 -4px 24px rgba(79,99,255,.09);
-  padding-bottom:env(safe-area-inset-bottom,0);
-}
-.ni{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:4px;cursor:pointer;border:none;background:none;color:var(--text3);
-  transition:color .18s;position:relative;padding-top:4px;
-}
-.ni.on{color:var(--indigo);}
-.ni-wrap{
-  width:46px;height:32px;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:21px;transition:background .18s,transform .12s;
-}
-.ni.on .ni-wrap{background:var(--indigo-l);}
-.ni:active .ni-wrap{transform:scale(.88);}
-.ni-lbl{font-size:10px;font-weight:700;letter-spacing:.03em;}
+/* ── NAV ── */
+.nav{height:var(--nav-h);flex-shrink:0;background:var(--white);border-top:1px solid var(--border);display:flex;align-items:stretch;padding-bottom:env(safe-area-inset-bottom,0);box-shadow:0 -1px 12px rgba(67,97,238,.06);}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;color:var(--text3);cursor:pointer;padding:6px 0 2px;transition:color .18s;}
+.ni.on{color:var(--blue);}
+.ni-ic{width:44px;height:28px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:background .18s,transform .12s;}
+.ni.on .ni-ic{background:var(--blue-l);}
+.ni:active .ni-ic{transform:scale(.82);}
+.ni-lb{font-size:10px;font-weight:600;line-height:1;}
 
-/* ── CARDS ── */
-.card{
-  background:var(--white);border:1px solid var(--border);
-  border-radius:var(--r);overflow:hidden;margin-bottom:12px;
-  box-shadow:var(--sh);
-  animation:fUp .28s ease both;
-}
-.card:nth-child(1){animation-delay:0s}
-.card:nth-child(2){animation-delay:.04s}
-.card:nth-child(3){animation-delay:.08s}
-.card:nth-child(4){animation-delay:.12s}
-.card:nth-child(5){animation-delay:.16s}
-@keyframes fUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.cp{padding:16px;}
+/* ── ANIMATIONS ── */
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── CARD ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;box-shadow:0 1px 8px rgba(67,97,238,.05);animation:fu .24s ease both;}
+.card:nth-child(2){animation-delay:.05s}.card:nth-child(3){animation-delay:.1s}
+.card:nth-child(4){animation-delay:.15s}.card:nth-child(5){animation-delay:.2s}
+.cp{padding:15px;}
 
 /* ── HERO ── */
-.hero{
-  background:linear-gradient(140deg,var(--indigo) 0%,#6c7fff 55%,#4fbdff 100%);
-  border-radius:var(--r);padding:22px 20px;margin-bottom:14px;
-  position:relative;overflow:hidden;color:#fff;
-  box-shadow:0 8px 32px rgba(79,99,255,.32);
-  animation:fUp .28s ease both;
-}
-.hero::before{
-  content:'';position:absolute;top:-50px;right:-40px;
-  width:200px;height:200px;border-radius:50%;
-  background:rgba(255,255,255,.1);pointer-events:none;
-}
-.hero::after{
-  content:'';position:absolute;bottom:-60px;left:-20px;
-  width:160px;height:160px;border-radius:50%;
-  background:rgba(255,255,255,.06);pointer-events:none;
-}
-.hero-tag{font-size:11px;font-weight:600;opacity:.7;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;}
-.hero-amt{font-size:42px;font-weight:800;letter-spacing:-1.5px;line-height:1;}
-.hero-sub{font-size:12px;opacity:.75;margin-top:5px;}
-.hero-pills{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
-.hpill{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.3);border-radius:30px;padding:6px 13px;font-size:12px;font-weight:700;}
-.prog-wrap{height:5px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:14px;overflow:hidden;}
-.prog-fill{height:100%;background:rgba(255,255,255,.9);border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+.hero{border-radius:var(--r);padding:20px 18px;margin-bottom:12px;color:#fff;position:relative;overflow:hidden;background:linear-gradient(135deg,#4361ee 0%,#667eea 60%,#56ccf2 100%);box-shadow:0 6px 24px rgba(67,97,238,.28);animation:fu .22s ease both;}
+.hero::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none;}
+.hero-tag{font-size:11px;font-weight:500;opacity:.75;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.hero-amt{font-size:38px;font-weight:700;letter-spacing:-1.5px;line-height:1;font-family:'DM Mono',monospace;}
+.hero-sub{font-size:12px;opacity:.65;margin-top:5px;}
+.hero-pills{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.hpill{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 11px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;}
+/* Progress bar - rHome uses prog-wrap/prog-fill */
+.prog,.prog-wrap{height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin-top:12px;overflow:hidden;}
+.prog-f,.prog-fill{height:100%;background:rgba(255,255,255,.85);border-radius:2px;transition:width .7s cubic-bezier(.4,0,.2,1);}
+.prog-row{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;opacity:.6;}
 
-/* ── STATS ── */
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.scard{
-  background:var(--white);border:1px solid var(--border);border-radius:16px;
-  padding:14px;box-shadow:var(--sh);
-  animation:fUp .3s ease both;
-  transition:transform .12s,box-shadow .12s;
-}
-.scard.tap{cursor:pointer;}
-.scard.tap:active{transform:scale(.97);box-shadow:none;}
-.scard:nth-child(2){animation-delay:.04s}
-.scard:nth-child(3){animation-delay:.08s}
-.scard:nth-child(4){animation-delay:.12s}
-.s-icon{font-size:22px;margin-bottom:8px;}
-.s-val{font-size:19px;font-weight:800;}
-.s-lbl{font-size:11px;color:var(--text3);font-weight:600;margin-top:3px;}
+/* ── STAT CARDS (rHome uses scard/s-icon/s-val/s-lbl) ── */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.scard,.sc{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:14px 13px;box-shadow:0 1px 6px rgba(67,97,238,.04);cursor:pointer;transition:transform .12s;animation:fu .24s ease both;}
+.scard:nth-child(2),.sc:nth-child(2){animation-delay:.05s}
+.scard:nth-child(3),.sc:nth-child(3){animation-delay:.1s}
+.scard:nth-child(4),.sc:nth-child(4){animation-delay:.15s}
+.scard.tap:active,.sc:active,.tap:active{transform:scale(.95);} .tap{cursor:pointer;transition:transform .12s;}
+.s-icon,.sc-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;background:var(--blue-l);color:var(--blue);}
+.s-val,.sc-v{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;line-height:1;}
+.s-lbl,.sc-l{font-size:11px;color:var(--text3);font-weight:500;margin-top:4px;}
 
-/* ── SECTION LABEL ── */
-.sec{
-  display:flex;align-items:center;justify-content:space-between;
-  margin:16px 0 10px;
-}
-.sec-t{font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;}
-.sec-btn{
-  display:flex;align-items:center;gap:5px;
-  background:var(--indigo-l);border:1px solid var(--indigo-p);
-  border-radius:20px;padding:6px 13px;
-  font-size:11px;font-weight:800;color:var(--indigo);cursor:pointer;
-  transition:all .15s;
-}
-.sec-btn:active{background:var(--indigo-p);}
+/* ── SECTION HEADER ── */
+.sec{display:flex;align-items:center;justify-content:space-between;margin:16px 0 10px;}
+.sec-t{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.sec-btn{display:flex;align-items:center;gap:5px;background:var(--blue-l);border:1px solid var(--blue-p);border-radius:20px;padding:6px 12px;font-size:11px;font-weight:700;color:var(--blue);cursor:pointer;transition:background .14s;font-family:'DM Sans',sans-serif;}
+.sec-btn:active{background:var(--blue-p);}
 
-/* ── MEMBER ROWS ── */
-.mr{
-  display:flex;align-items:center;gap:12px;
-  padding:13px 16px;border-bottom:1px solid var(--border);
-  transition:background .12s;animation:fUp .28s ease both;
-}
+/* ── MEMBER ROW ── */
+.mr{display:flex;align-items:center;gap:12px;padding:13px 15px;border-bottom:1px solid var(--border);transition:background .12s;animation:fu .22s ease both;}
 .mr:last-child{border-bottom:none;}
 .mr:active{background:var(--surface);}
-.av{
-  width:42px;height:42px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:800;font-size:16px;flex-shrink:0;
-}
+.av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;flex-shrink:0;}
 .mi{flex:1;min-width:0;}
-.mn{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ms{font-size:11px;color:var(--text3);margin-top:2px;}
-.mamt{font-weight:800;font-size:15px;color:var(--indigo);flex-shrink:0;}
-.ptog{
-  width:38px;height:38px;border-radius:12px;border:none;
-  display:flex;align-items:center;justify-content:center;
-  font-size:17px;cursor:pointer;flex-shrink:0;
-  transition:all .15s;
-}
-.ptog:active{transform:scale(.88);}
+.mn{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ms{font-size:11px;color:var(--text3);margin-top:3px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.mamt{font-weight:700;font-size:14px;color:var(--blue);flex-shrink:0;font-family:'DM Mono',monospace;}
+.ptog{width:34px;height:34px;border-radius:9px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .14s;font-size:16px;font-weight:700;}
+.ptog:active{transform:scale(.82);}
 .ptog.off{background:var(--surface);color:var(--text3);border:1.5px solid var(--border2);}
-.ptog.on{background:var(--green-l);color:var(--green);border:1.5px solid #a0ead0;}
+.ptog.on{background:var(--green-l);color:var(--green-d);}
 
-/* ── BADGE ── */
-.bdg{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;}
-.bdg-i{background:var(--indigo-l);color:var(--indigo);border:1px solid var(--indigo-p);}
-.bdg-g{background:var(--green-l);color:var(--green);border:1px solid #b0ead0;}
-.bdg-r{background:var(--red-l);color:var(--red);border:1px solid #ffc0cc;}
-.bdg-a{background:var(--amber-l);color:var(--amber);border:1px solid #ffd080;}
-.bdg-p{background:var(--purple-l);color:var(--purple);border:1px solid #c4b5fd;}
-.bdg-t{background:var(--teal-l);color:var(--teal);border:1px solid #a0e8e0;}
+/* ── BADGES ── */
+.bdg{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;line-height:1.4;}
+.bdg-b,.bdg-i{background:var(--blue-l);color:var(--blue);}
+.bdg-g{background:var(--green-l);color:var(--green-d);}
+.bdg-r{background:var(--red-l);color:var(--red);}
+.bdg-a{background:var(--amber-l);color:#92400e;}
+.bdg-p{background:var(--purple-l);color:var(--purple);}
+
+/* ── INFO BOXES (ib) ── */
+.ib{padding:10px 13px;border-radius:12px;font-size:12px;line-height:1.75;display:flex;align-items:flex-start;gap:8px;}
+.ib-i{background:var(--blue-l);color:var(--blue);}
+.ib-g{background:var(--green-l);color:var(--green-d);}
+.ib-r{background:var(--red-l);color:var(--red);}
+.ib-a{background:var(--amber-l);color:#92400e;}
+.ib-p{background:var(--purple-l);color:var(--purple);}
+
+/* ── SYNC BADGE ── */
+.sync-badge,.sync-bdg{display:inline-flex;align-items:center;gap:4px;background:var(--green-l);border:1px solid #6ee7b7;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;color:var(--green-d);}
 
 /* ── LEDGER ENTRY ── */
-.le{
-  display:flex;align-items:flex-start;gap:12px;
-  padding:13px 16px;border-bottom:1px solid var(--border);
-  animation:fUp .28s ease both;
-}
+.le{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border-bottom:1px solid var(--border);animation:fu .22s ease both;}
 .le:last-child{border-bottom:none;}
-.li{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.lm{flex:1;min-width:0;}
-.lt{font-weight:700;font-size:13px;}
-.ls{font-size:11px;color:var(--text3);margin-top:2px;}
-.lb{font-size:11px;font-weight:700;margin-top:5px;display:flex;align-items:center;gap:4px;}
-.lr{text-align:right;flex-shrink:0;}
-.la{font-weight:800;font-size:14px;}
-.rx{
-  margin-top:6px;margin-left:auto;
-  width:26px;height:26px;border-radius:8px;
-  background:var(--red-l);color:var(--red);border:none;
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;cursor:pointer;
-}
+/* rOwner uses li/lm/lt/ls/lb/lr/la/rx */
+.li,.le-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.lm,.le-m{flex:1;min-width:0;}
+.lt,.le-t{font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;line-height:1.4;}
+.ls,.le-s{font-size:11px;color:var(--text3);margin-top:3px;}
+.lb,.le-b{font-size:11px;font-weight:600;margin-top:5px;display:flex;align-items:center;gap:5px;}
+.lr,.le-r{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.la,.le-a{font-weight:700;font-size:14px;font-family:'DM Mono',monospace;}
+.rx,.rmv{width:26px;height:26px;border-radius:7px;background:var(--red-l);color:var(--red);border:none;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;transition:transform .12s;font-family:'DM Sans',sans-serif;}
+.rx:active,.rmv:active{transform:scale(.82);}
 
 /* ── OWNER HERO ── */
-.ohero{
-  border-radius:var(--r);padding:22px 20px;margin-bottom:12px;
-  position:relative;overflow:hidden;
-  animation:fUp .28s ease both;
-}
-.ohero.owed{background:linear-gradient(135deg,#fff1f4,#ffe0e6);border:1.5px solid #ffc0cc;}
-.ohero.owed::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(255,68,102,.12),transparent 70%);pointer-events:none;}
-.ohero.clear{background:linear-gradient(135deg,#f0fff8,#d6f9ec);border:1.5px solid #a0ead0;}
-.ohero.clear::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(0,199,119,.12),transparent 70%);pointer-events:none;}
-.oh-lbl{font-size:11px;font-weight:700;opacity:.6;letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px;}
-.oh-amt{font-size:38px;font-weight:800;line-height:1;letter-spacing:-1px;}
-.oh-st{font-size:13px;font-weight:600;margin-top:7px;opacity:.8;}
-.oh-chips{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.ohero{border-radius:var(--r);padding:20px 18px;margin-bottom:12px;animation:fu .22s ease both;}
+.ohero.owed{background:linear-gradient(135deg,#fff1f2,#fee2e2);border:1.5px solid #fca5a5;}
+.ohero.clear{background:linear-gradient(135deg,#f0fdf4,#d1fae5);border:1.5px solid #6ee7b7;}
+/* rOwner uses oh-lbl/oh-amt/oh-st/oh-chips */
+.oh-lbl,.oh-l{font-size:11px;font-weight:600;opacity:.55;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+.oh-amt,.oh-a{font-size:34px;font-weight:700;line-height:1;letter-spacing:-1px;font-family:'DM Mono',monospace;}
+.oh-st,.oh-s{font-size:13px;font-weight:500;margin-top:6px;display:flex;align-items:center;gap:6px;}
+.oh-chips,.oh-cs{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
 
 /* ── BUTTONS ── */
-.btn{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  padding:14px 20px;border-radius:14px;
-  font-size:14px;font-weight:800;cursor:pointer;border:none;
-  transition:all .14s;font-family:'Plus Jakarta Sans',sans-serif;width:100%;
-}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 18px;border-radius:13px;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .13s;font-family:'DM Sans',sans-serif;width:100%;line-height:1;}
 .btn:active{transform:scale(.97);}
-.btn-indigo{background:linear-gradient(135deg,var(--indigo),#7c8fff);color:#fff;box-shadow:0 4px 18px rgba(79,99,255,.3);}
-.btn-indigo:active{box-shadow:0 2px 8px rgba(79,99,255,.2);}
+.btn-blue,.btn-indigo{background:linear-gradient(135deg,#4361ee,#667eea);color:#fff;box-shadow:0 4px 14px rgba(67,97,238,.3);}
 .btn-ghost{background:var(--surface);color:var(--text2);border:1.5px solid var(--border2);}
-.btn-ghost:active{background:var(--border);}
-.btn-green{background:linear-gradient(135deg,#00c777,#00a888);color:#fff;box-shadow:0 4px 18px rgba(0,199,119,.25);}
-.btn-sm{padding:8px 15px;font-size:12px;border-radius:10px;width:auto;}
-.btn-wa{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;box-shadow:0 4px 18px rgba(37,211,102,.3);}
+.btn-green{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 4px 14px rgba(16,185,129,.22);}
+.btn-wa{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;box-shadow:0 4px 14px rgba(37,211,102,.28);}
 
 /* ── SHEETS ── */
-.ovl{
-  position:fixed;inset:0;z-index:200;
-  background:rgba(30,40,80,.45);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  display:none;align-items:flex-end;justify-content:center;
-}
+.ovl{position:fixed;inset:0;z-index:200;background:rgba(15,20,60,.45);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;}
 .ovl.open{display:flex;}
-.sheet{
-  background:var(--white);
-  border-radius:26px 26px 0 0;
-  border:1px solid var(--border);border-bottom:none;
-  width:100%;max-width:430px;
-  padding:14px 20px 40px;max-height:90vh;overflow-y:auto;
-  animation:shUp .24s cubic-bezier(.4,0,.2,1);
-}
+.sheet{background:var(--white);border-radius:22px 22px 0 0;width:100%;max-width:430px;padding:12px 16px 44px;max-height:88vh;overflow-y:auto;animation:shup .2s cubic-bezier(.4,0,.2,1);}
 .sheet::-webkit-scrollbar{display:none;}
-@keyframes shUp{from{transform:translateY(100%);opacity:.6}to{transform:translateY(0);opacity:1}}
-.handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px;}
-.sh-title{font-size:20px;font-weight:800;margin-bottom:18px;color:var(--text);}
-.sh-sub{font-size:13px;color:var(--text3);margin:-12px 0 16px;line-height:1.6;}
+@keyframes shup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.handle{width:32px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;}
+.sh-title{font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.sh-sub{font-size:13px;color:var(--text3);margin:-10px 0 16px;line-height:1.65;}
 
-/* ── FORM ── */
-.fg{margin-bottom:14px;}
-.fg label{display:block;font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;}
-input,select{
-  width:100%;background:var(--surface);
-  border:1.5px solid var(--border);border-radius:13px;
-  color:var(--text);padding:13px 15px;
-  font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;
-  outline:none;transition:border .18s,background .18s;-webkit-appearance:none;
-}
+/* ── FORMS ── */
+.fg{margin-bottom:13px;}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+input,select{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;color:var(--text);padding:12px 13px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;outline:none;transition:border .16s,background .16s;-webkit-appearance:none;}
+input:focus,select:focus{border-color:var(--blue);background:var(--blue-l);}
 input::placeholder{color:var(--text3);}
-input:focus,select:focus{border-color:var(--indigo);background:var(--indigo-l);}
-select option{background:#fff;}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
 /* ── SEGMENT ── */
-.seg{display:flex;background:var(--surface);border-radius:13px;padding:4px;margin-bottom:14px;border:1px solid var(--border);}
-.sgo{flex:1;padding:10px;text-align:center;border-radius:10px;font-size:12px;font-weight:800;color:var(--text3);cursor:pointer;transition:all .18s;}
-.sgo.on{background:var(--white);color:var(--indigo);box-shadow:0 2px 8px rgba(79,99,255,.12);border:1px solid var(--indigo-p);}
+.seg{display:flex;background:var(--surface);border-radius:12px;padding:3px;margin-bottom:13px;}
+.sgo{flex:1;padding:9px;text-align:center;border-radius:9px;font-size:12px;font-weight:700;color:var(--text3);cursor:pointer;transition:all .18s;}
+.sgo.on{background:var(--white);color:var(--blue);box-shadow:0 1px 6px rgba(67,97,238,.12);}
 
-/* ── INFO BOX ── */
-.ib{border-radius:12px;padding:11px 13px;font-size:12px;font-weight:600;line-height:1.65;margin-bottom:14px;}
-.ib-i{background:var(--indigo-l);border:1px solid var(--indigo-p);color:var(--indigo);}
-.ib-g{background:var(--green-l);border:1px solid #b0ead0;color:#00966a;}
-.ib-a{background:var(--amber-l);border:1px solid #ffd080;color:#c06000;}
-.ib-r{background:var(--red-l);border:1px solid #ffc0cc;color:#c00030;}
-.ib-p{background:var(--purple-l);border:1px solid #c4b5fd;color:#5b21b6;}
-.ib-t{background:var(--teal-l);border:1px solid #a0e8e0;color:#007060;}
+/* ── COLLAPSIBLE ── */
+.coll{border-radius:12px;margin-bottom:12px;overflow:hidden;}
+.coll-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;cursor:pointer;font-size:12px;font-weight:700;user-select:none;transition:opacity .15s;}
+.coll-hdr:active{opacity:.72;}
+.coll-title{display:flex;align-items:center;gap:6px;}
+.coll-arr{transition:transform .22s;display:inline-block;font-size:11px;}
+.coll-arr.open{transform:rotate(180deg);}
+.coll-body{max-height:0;overflow:hidden;transition:max-height .28s ease;}
+.coll-body.open{max-height:400px;}
+.coll-inner{padding:11px 13px;font-size:12px;line-height:1.85;color:var(--text2);}
+.coll-i{border:1.5px solid var(--blue-p);}
+.coll-i .coll-hdr{background:var(--blue-l);color:var(--blue);}
+.coll-i .coll-inner{background:var(--white);}
+.coll-g{border:1.5px solid #6ee7b7;}
+.coll-g .coll-hdr{background:var(--green-l);color:var(--green-d);}
+.coll-g .coll-inner{background:var(--white);}
+.coll-a{border:1.5px solid #fcd34d;}
+.coll-a .coll-hdr{background:var(--amber-l);color:#92400e;}
+.coll-a .coll-inner{background:var(--white);}
 
 /* ── MONTH LIST ── */
-.mi-wrap{background:var(--white);border-radius:var(--r);overflow:hidden;border:1px solid var(--border);}
-.mit{
-  display:flex;align-items:center;gap:12px;
-  padding:14px 16px;border-bottom:1px solid var(--border);
-  cursor:pointer;transition:background .12s;
-}
+.mi-wrap{display:flex;flex-direction:column;}
+.mit{display:flex;align-items:center;gap:13px;padding:13px 15px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;}
 .mit:last-child{border-bottom:none;}
 .mit:active{background:var(--surface);}
-.mit.cur{background:var(--indigo-l);}
+.mit.cur{background:var(--blue-l);}
+.mico{width:44px;height:44px;border-radius:12px;background:var(--blue-l);border:1px solid var(--blue-p);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--blue);flex-shrink:0;text-align:center;line-height:1.3;}
+/* rHistory uses hm-icon */
+.hm-icon{width:44px;height:44px;border-radius:12px;background:var(--blue-l);border:1px solid var(--blue-p);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--blue);flex-shrink:0;text-align:center;line-height:1.4;}
 
-/* ── DEDUCT ROW ── */
-.dr{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);}
+/* ── DEDUCTION ROW ── */
+.dr{display:flex;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid var(--border);}
 .dr:last-child{border-bottom:none;}
 
-/* ── HISTORY ── */
-.hi{
-  display:flex;align-items:center;gap:12px;
-  padding:14px 16px;border-bottom:1px solid var(--border);
-  cursor:pointer;transition:background .12s;animation:fUp .28s ease both;
-}
+/* ── BILL TOTAL ── */
+.trow{display:flex;align-items:center;justify-content:space-between;padding:14px 15px;background:var(--blue-l);border-top:1.5px solid var(--blue-p);}
+.trow-l{font-size:14px;font-weight:700;color:var(--blue);}
+.trow-v{font-size:18px;font-weight:700;color:var(--blue);font-family:'DM Mono',monospace;}
+
+/* ── HISTORY ROW ── */
+.hi{display:flex;align-items:center;gap:12px;padding:13px 15px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;animation:fu .22s ease both;}
 .hi:last-child{border-bottom:none;}
 .hi:active{background:var(--surface);}
-.hm-icon{
-  width:46px;height:46px;border-radius:14px;
-  background:var(--indigo-l);border:1px solid var(--indigo-p);
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-weight:800;color:var(--indigo);
-  flex-shrink:0;text-align:center;line-height:1.3;
-}
 
-/* ── TOTAL ROW ── */
-.trow{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 16px;
-  background:var(--indigo-l);border-top:1.5px solid var(--indigo-p);
-}
-.trow-l{font-size:14px;font-weight:800;color:var(--indigo);}
-.trow-v{font-size:19px;font-weight:800;color:var(--indigo);}
-
-/* ── AUTO SYNC BADGE ── */
-.sync-badge{
-  display:inline-flex;align-items:center;gap:5px;
-  background:var(--green-l);border:1px solid #b0ead0;border-radius:20px;
-  padding:4px 10px;font-size:10px;font-weight:800;color:var(--green);
-}
+/* ── SHARE COMPONENTS ── */
+.rtype{flex:1;border:2px solid var(--border);border-radius:14px;padding:13px 10px;text-align:center;cursor:pointer;background:var(--surface);transition:all .16s;}
+.rtype.on{border-color:var(--blue);background:var(--blue-l);}
+.rtype:active{transform:scale(.95);}
+.rtype-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;}
+.rtype-nm{font-size:13px;font-weight:700;color:var(--text);}
+.rtype-sb{font-size:10px;color:var(--text3);margin-top:2px;}
+.sact{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;width:100%;border:1.5px solid var(--border);background:var(--white);font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .13s;text-align:left;margin-bottom:10px;box-shadow:0 1px 4px rgba(67,97,238,.05);}
+.sact:active{transform:scale(.97);background:var(--surface);}
+.sact-ic{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;}
+.sact-tx,.sact-txt{flex:1;display:flex;flex-direction:column;gap:2px;}
+.sact-tx b,.sact-txt b{font-size:14px;font-weight:700;color:var(--text);}
+.sact-tx span,.sact-txt span{font-size:11px;color:var(--text3);}
 
 /* ── TOAST ── */
-.toast{
-  position:fixed;bottom:calc(var(--nav-h)+16px);
-  left:50%;transform:translateX(-50%) translateY(8px);
-  background:var(--text);color:#fff;border-radius:30px;
-  padding:11px 22px;font-size:13px;font-weight:700;
-  z-index:9999;opacity:0;transition:all .22s;white-space:nowrap;
-  pointer-events:none;box-shadow:0 8px 30px rgba(30,40,80,.25);
-}
+.toast{position:fixed;bottom:calc(var(--nav-h) + 14px);left:50%;transform:translateX(-50%) translateY(6px);background:#1e2448;color:#fff;border-radius:30px;padding:10px 20px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:all .2s;white-space:nowrap;pointer-events:none;box-shadow:0 6px 20px rgba(30,36,72,.22);}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* ── EMPTY ── */
-.empty{text-align:center;padding:36px 16px;}
-.ei{font-size:46px;display:block;margin-bottom:12px;}
-.et{font-size:16px;font-weight:800;margin-bottom:6px;}
-.es{font-size:13px;color:var(--text3);line-height:1.6;}
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:32px 16px;}
+.ei{display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:18px;background:var(--blue-l);margin:0 auto 14px;color:var(--blue);}
+.et{font-size:16px;font-weight:700;margin-bottom:6px;color:var(--text);}
+.es{font-size:13px;color:var(--text3);line-height:1.65;}
 
-/* ── WA SHARE MODAL ── */
-.wa-options{display:flex;flex-direction:column;gap:10px;}
-.wa-card{
-  display:flex;align-items:center;gap:14px;
-  padding:16px;border-radius:16px;
-  border:1.5px solid var(--border);background:var(--surface);
-  cursor:pointer;transition:all .15s;
-}
-.wa-card:active{background:var(--border);}
-.wa-card-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
-.wa-card-info{flex:1;}
-.wa-card-title{font-weight:800;font-size:15px;}
-.wa-card-sub{font-size:12px;color:var(--text3);margin-top:2px;}
-
-.gap{height:10px;} .div{height:1px;background:var(--border);margin:14px 0;}
+/* ── UTILS ── */
+.gap{height:12px;}
+.div{height:1px;background:var(--border);margin:14px 0;}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="hdr">
   <div class="logo">
-    <div class="logo-icon">🏠</div>
+    <div class="logo-mark" id="logoMark"></div>
     RoomSplit
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
-    <button id="installBtn" onclick="installApp()" style="display:none;background:var(--indigo-l);border:1.5px solid var(--indigo-p);border-radius:20px;padding:7px 12px;font-size:11px;font-weight:800;color:var(--indigo);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📲 Install</button>
-    <div class="month-pill" id="monthPillBtn">
-      <div class="m-dot"></div>
+    <button id="installBtn" onclick="installApp()"></button>
+    <div class="mpill" id="monthPillBtn" onclick="openMonthSheet()">
+      <div class="mpill-dot"></div>
       <span id="pillLabel">Select Month</span>
-      <span style="color:var(--indigo);opacity:.5;font-size:11px;">▾</span>
+      <span id="pillArrow"></span>
     </div>
   </div>
 </div>
 
-<!-- SCROLL -->
 <div class="scroll" id="main"></div>
 
-<!-- NAV -->
 <nav class="nav">
-  <button class="ni on" id="ni-home" onclick="go('home')">
-    <div class="ni-wrap">🏠</div><span class="ni-lbl">Home</span>
-  </button>
-  <button class="ni" id="ni-members" onclick="go('members')">
-    <div class="ni-wrap">👥</div><span class="ni-lbl">Members</span>
-  </button>
-  <button class="ni" id="ni-bill" onclick="go('bill')">
-    <div class="ni-wrap">🧾</div><span class="ni-lbl">Bill</span>
-  </button>
-  <button class="ni" id="ni-owner" onclick="go('owner')">
-    <div class="ni-wrap">🏦</div><span class="ni-lbl">Owner</span>
-  </button>
-  <button class="ni" id="ni-history" onclick="go('history')">
-    <div class="ni-wrap">📁</div><span class="ni-lbl">History</span>
-  </button>
+  <button class="ni on" id="ni-home" onclick="go('home')"><div class="ni-ic" id="ic-nav-home"></div><span class="ni-lb">Home</span></button>
+  <button class="ni" id="ni-members" onclick="go('members')"><div class="ni-ic" id="ic-nav-members"></div><span class="ni-lb">Members</span></button>
+  <button class="ni" id="ni-bill" onclick="go('bill')"><div class="ni-ic" id="ic-nav-bill"></div><span class="ni-lb">Bill</span></button>
+  <button class="ni" id="ni-owner" onclick="go('owner')"><div class="ni-ic" id="ic-nav-owner"></div><span class="ni-lb">Owner</span></button>
+  <button class="ni" id="ni-history" onclick="go('history')"><div class="ni-ic" id="ic-nav-history"></div><span class="ni-lb">History</span></button>
 </nav>
 
-<!-- ══════════ SHEETS ══════════ -->
+<!-- SHEETS -->
+<div class="ovl" id="s-months" onclick="bclose(event,'s-months')"><div class="sheet"><div class="handle"></div><div class="sh-title" id="sht-months"></div><div id="mListEl"></div><div class="gap"></div><button class="btn btn-blue" id="sht-newm-btn" onclick="closeS('s-months');openS('s-newm')"></button></div></div>
+<div class="ovl" id="s-newm" onclick="bclose(event,'s-newm')"><div class="sheet"><div class="handle"></div><div class="sh-title" id="sht-newm"></div>
+<div class="coll coll-i" style="margin-bottom:14px;"><div class="coll-hdr" onclick="toggleColl(this)"><span id="coll-sync-hdr"></span><span class="coll-arr" id="coll-sync-arr"></span></div><div class="coll-body"><div class="coll-inner">Rent and electricity you enter here automatically appear in the Owner Ledger as charges. Log payments to track the balance.</div></div></div>
+<div class="fg"><label>Month &amp; Year</label><input type="month" id="nm-m"/></div><div class="frow"><div class="fg"><label>Rent (AED)</label><input type="number" id="nm-r" placeholder="4000"/></div><div class="fg"><label>Electricity (AED)</label><input type="number" id="nm-e" placeholder="1000"/></div></div><div class="fg"><label>Other (AED)</label><input type="number" id="nm-o" placeholder="0"/></div>
+<div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-blue" id="btn-create-m"></button><button class="btn btn-ghost" onclick="closeS('s-newm')">Cancel</button></div></div></div>
+<div class="ovl" id="s-mem" onclick="bclose(event,'s-mem')"><div class="sheet"><div class="handle"></div><div class="sh-title" id="sht-mem"></div><div class="fg"><label>Full Name</label><input id="mb-n" placeholder="e.g. Ahmed"/></div><div class="fg"><label>Share Type</label><div class="seg" id="seg-t"><div class="sgo on" onclick="setSeg('seg-t',this,'full')">Full Share</div><div class="sgo" onclick="setSeg('seg-t',this,'room_only')">Room Only</div></div><input type="hidden" id="mb-t" value="full"/></div><div class="fg"><label>Floor Discount (AED)</label><input type="number" id="mb-d" placeholder="0"/></div>
+<div class="coll coll-i"><div class="coll-hdr" onclick="toggleColl(this)"><span id="coll-share-hdr"></span><span class="coll-arr" id="coll-share-arr"></span></div><div class="coll-body"><div class="coll-inner"><b>Full Share</b> — Rent + Electricity + Other<br/><b>Room Only</b> — Rent only, no extras<br/><b>Floor Discount</b> — Less rent for floor sleeper; difference shared equally</div></div></div>
+<div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-blue" id="btn-add-mem"></button><button class="btn btn-ghost" onclick="closeS('s-mem')">Cancel</button></div></div></div>
+<div class="ovl" id="s-ded" onclick="bclose(event,'s-ded')"><div class="sheet"><div class="handle"></div><div class="sh-title" id="sht-ded"></div>
+<div class="coll coll-g" style="margin-bottom:14px;"><div class="coll-hdr" onclick="toggleColl(this)"><span id="coll-ded-hdr"></span><span class="coll-arr" id="coll-ded-arr"></span></div><div class="coll-body"><div class="coll-inner">If a member paid for room expenses (water, cleaning, groceries) — their rent share reduces by this amount.</div></div></div>
+<div class="fg"><label>Member Who Paid</label><select id="ded-m"></select></div><div class="fg"><label>What for?</label><input id="ded-d" placeholder="Water, cleaning…"/></div><div class="fg"><label>Amount (AED)</label><input type="number" id="ded-a" placeholder="0"/></div>
+<div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-blue" id="btn-add-ded"></button><button class="btn btn-ghost" onclick="closeS('s-ded')">Cancel</button></div></div></div>
+<div class="ovl" id="s-ow" onclick="bclose(event,'s-ow')"><div class="sheet"><div class="handle"></div><div class="sh-title" id="sht-ow"></div><div class="fg"><label>Type</label><select id="ow-t" onchange="owHint()"><option value="payment">Payment to Owner</option><option value="advance">Advance Given</option><option value="other_charge">Other Charge</option><option value="prev_balance">Previous Balance</option><option value="discount">Owner Discount</option></select></div><div id="ow-hint-el"></div><div class="fg"><label>Amount (AED)</label><input type="number" id="ow-a" placeholder="0"/></div><div class="fg"><label>Note (optional)</label><input id="ow-n" placeholder="e.g. March rent payment"/></div><div class="fg"><label>Date</label><input type="date" id="ow-dt"/></div>
+<div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-blue" id="btn-add-ow"></button><button class="btn btn-ghost" onclick="closeS('s-ow')">Cancel</button></div></div></div>
+<div class="ovl" id="s-ec" onclick="bclose(event,'s-ec')"><div class="sheet"><div class="handle"></div><div class="sh-title" id="sht-ec"></div>
+<div class="coll coll-a" style="margin-bottom:14px;"><div class="coll-hdr" onclick="toggleColl(this)"><span id="coll-ec-hdr"></span><span class="coll-arr" id="coll-ec-arr"></span></div><div class="coll-body"><div class="coll-inner">Changing rent or electricity here automatically updates the Owner Ledger entries.</div></div></div>
+<div class="fg"><label>Rent (AED)</label><input type="number" id="ec-r"/></div><div class="frow"><div class="fg"><label>Electricity (AED)</label><input type="number" id="ec-e"/></div><div class="fg"><label>Other (AED)</label><input type="number" id="ec-o"/></div></div>
+<div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-blue" id="btn-save-ec"></button><button class="btn btn-ghost" onclick="closeS('s-ec')">Cancel</button></div></div></div>
 
-<!-- Month list -->
-<div class="ovl" id="s-months" onclick="bclose(event,'s-months')">
-  <div class="sheet">
-    <div class="handle"></div>
-    <div class="sh-title">📅 Months</div>
-    <div id="mListEl"></div>
-    <div class="gap"></div>
-    <button class="btn btn-indigo" onclick="closeS('s-months');openS('s-newm')">＋ New Month</button>
-  </div>
+<!-- SHARE SHEET -->
+<div class="ovl" id="s-wa" onclick="bclose(event,'s-wa')"><div class="sheet"><div class="handle"></div><div class="sh-title" id="sht-wa"></div><div class="sh-sub">Choose a report and how to share it.</div>
+<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Report Type</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+  <div id="rt-roommates" class="rtype on" onclick="selRT('roommates')"><div class="rtype-ic" id="rtic-rm" style="background:var(--blue-l);color:var(--blue);"></div><div class="rtype-nm">Roommates</div><div class="rtype-sb">Who owes what</div></div>
+  <div id="rt-owner" class="rtype" onclick="selRT('owner')"><div class="rtype-ic" id="rtic-ow" style="background:var(--green-l);color:var(--green-d);"></div><div class="rtype-nm">Owner</div><div class="rtype-sb">Ledger report</div></div>
 </div>
+<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Share via</div>
+<button class="sact" onclick="doAct('download')"><div class="sact-ic" style="background:var(--blue);" id="si-dl"></div><div class="sact-tx"><b>Download PDF</b><span>Save to your device</span></div><span id="si-chev1"></span></button>
+<button class="sact" onclick="doAct('whatsapp')"><div class="sact-ic" style="background:#25D366;" id="si-wa"></div><div class="sact-tx"><b>WhatsApp</b><span>Send PDF to group or owner</span></div><span id="si-chev2"></span></button>
+<button class="sact" onclick="doAct('share')"><div class="sact-ic" style="background:var(--purple);" id="si-sh"></div><div class="sact-tx"><b>Other Apps</b><span>Telegram, Email, Drive…</span></div><span id="si-chev3"></span></button>
+<div class="gap"></div><button class="btn btn-ghost" onclick="closeS('s-wa')">Cancel</button></div></div>
 
-<!-- New month -->
-<div class="ovl" id="s-newm" onclick="bclose(event,'s-newm')">
-  <div class="sheet">
-    <div class="handle"></div>
-    <div class="sh-title">＋ Create Month</div>
-    <div class="ib ib-i">💡 Rent and electricity amounts you enter here will automatically appear in the Owner Ledger as charges. You can then log payments to track the balance.</div>
-    <div class="fg"><label>Month & Year</label><input type="month" id="nm-m"/></div>
-    <div class="frow">
-      <div class="fg"><label>Rent (AED)</label><input type="number" id="nm-r" placeholder="4000"/></div>
-      <div class="fg"><label>Electricity (AED)</label><input type="number" id="nm-e" placeholder="1000"/></div>
-    </div>
-    <div class="fg"><label>Other Expenses (AED)</label><input type="number" id="nm-o" placeholder="0"/></div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-indigo" onclick="createMonth()">✅ Create Month</button>
-      <button class="btn btn-ghost" onclick="closeS('s-newm')">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add member -->
-<div class="ovl" id="s-mem" onclick="bclose(event,'s-mem')">
-  <div class="sheet">
-    <div class="handle"></div>
-    <div class="sh-title">👤 Add Member</div>
-    <div class="fg"><label>Full Name</label><input id="mb-n" placeholder="e.g. Ahmed"/></div>
-    <div class="fg">
-      <label>Share Type</label>
-      <div class="seg" id="seg-t">
-        <div class="sgo on" onclick="setSeg('seg-t',this,'full')">🏠 Full Share</div>
-        <div class="sgo" onclick="setSeg('seg-t',this,'room_only')">🛏️ Room Only</div>
-      </div>
-      <input type="hidden" id="mb-t" value="full"/>
-    </div>
-    <div class="fg"><label>Floor Discount (AED) — 0 if none</label><input type="number" id="mb-d" placeholder="0"/></div>
-    <div class="ib ib-i">
-      🏠 <b>Full Share</b> = Rent + Electricity + Other<br/>
-      🛏️ <b>Room Only</b> = Rent only, no electricity/extras<br/>
-      🎁 <b>Floor Discount</b> = Less rent for floor sleeper, difference shared by all
-    </div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-indigo" onclick="addMember()">＋ Add Member</button>
-      <button class="btn btn-ghost" onclick="closeS('s-mem')">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add deduction -->
-<div class="ovl" id="s-ded" onclick="bclose(event,'s-ded')">
-  <div class="sheet">
-    <div class="handle"></div>
-    <div class="sh-title">💧 Room Expense</div>
-    <div class="ib ib-g">If a member paid for room water, cleaning, groceries — their share reduces by this amount.</div>
-    <div class="fg"><label>Member Who Paid</label><select id="ded-m"></select></div>
-    <div class="fg"><label>What for?</label><input id="ded-d" placeholder="Room water, cleaning…"/></div>
-    <div class="fg"><label>Amount (AED)</label><input type="number" id="ded-a" placeholder="0"/></div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-indigo" onclick="addDed()">✅ Save</button>
-      <button class="btn btn-ghost" onclick="closeS('s-ded')">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- Owner entry (manual only - non-auto) -->
-<div class="ovl" id="s-ow" onclick="bclose(event,'s-ow')">
-  <div class="sheet">
-    <div class="handle"></div>
-    <div class="sh-title">🏦 Owner Entry</div>
-    <div class="fg">
-      <label>Type</label>
-      <select id="ow-t" onchange="owHint()">
-        <option value="payment">💸 We Paid Rent to Owner</option>
-        <option value="advance">⬆️ Advance Given to Owner</option>
-        <option value="other_charge">📦 Other Charge by Owner</option>
-        <option value="prev_balance">📋 Previous Balance (Carry)</option>
-        <option value="discount">🎁 Discount from Owner</option>
-      </select>
-    </div>
-    <div id="ow-hint-el"></div>
-    <div class="fg"><label>Amount (AED)</label><input type="number" id="ow-a" placeholder="0"/></div>
-    <div class="fg"><label>Note (optional)</label><input id="ow-n" placeholder="e.g. March rent payment"/></div>
-    <div class="fg"><label>Date</label><input type="date" id="ow-dt"/></div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-indigo" onclick="addOwnerEntry()">＋ Add</button>
-      <button class="btn btn-ghost" onclick="closeS('s-ow')">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- Edit costs -->
-<div class="ovl" id="s-ec" onclick="bclose(event,'s-ec')">
-  <div class="sheet">
-    <div class="handle"></div>
-    <div class="sh-title">✏️ Edit Month Costs</div>
-    <div class="ib ib-a">⚡ Changing rent or electricity here will update the auto-entries in the Owner Ledger too.</div>
-    <div class="fg"><label>Rent (AED)</label><input type="number" id="ec-r"/></div>
-    <div class="frow">
-      <div class="fg"><label>Electricity (AED)</label><input type="number" id="ec-e"/></div>
-      <div class="fg"><label>Other (AED)</label><input type="number" id="ec-o"/></div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-indigo" onclick="saveCosts()">💾 Save</button>
-      <button class="btn btn-ghost" onclick="closeS('s-ec')">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- Share Sheet -->
-<div class="ovl" id="s-wa" onclick="bclose(event,'s-wa')">
-  <div class="sheet">
-    <div class="handle"></div>
-    <div class="sh-title">📤 Share Report</div>
-    <div class="sh-sub">Generate a PDF and share it directly to WhatsApp or any app.</div>
-    <div class="wa-options">
-      <div class="wa-card" onclick="shareReport('roommates')">
-        <div class="wa-card-icon" style="background:var(--indigo-l);">👥</div>
-        <div class="wa-card-info">
-          <div class="wa-card-title">Roommates Report</div>
-          <div class="wa-card-sub">Who owes what — share to room group</div>
-        </div>
-        <span style="font-size:22px;color:var(--indigo);">▶</span>
-      </div>
-      <div class="wa-card" onclick="shareReport('owner')">
-        <div class="wa-card-icon" style="background:var(--green-l);">🏦</div>
-        <div class="wa-card-info">
-          <div class="wa-card-title">Owner Ledger Report</div>
-          <div class="wa-card-sub">Full payment history — share to owner</div>
-        </div>
-        <span style="font-size:22px;color:var(--green);">▶</span>
-      </div>
-    </div>
-    <div class="div"></div>
-    <div id="share-hint" class="ib ib-i" style="margin-bottom:0;font-size:12px;">
-      📱 <b>On mobile:</b> PDF will open the system share sheet — tap WhatsApp to send directly.<br/>
-      💻 <b>On desktop:</b> PDF downloads to your device — attach it manually in WhatsApp Web.
-    </div>
-  </div>
-</div>
-
-<!-- PDF Preview / Download Sheet -->
-<div class="ovl" id="s-pdfready" onclick="bclose(event,'s-pdfready')">
-  <div class="sheet">
-    <div class="handle"></div>
-    <div class="sh-title">✅ PDF Ready!</div>
-    <div id="pdf-ready-content"></div>
-  </div>
-</div>
+<div class="ovl" id="s-pdfready" onclick="bclose(event,'s-pdfready')"><div class="sheet"><div class="handle"></div><div class="sh-title" id="sht-pdfready"></div><div id="pdf-ready-content"></div></div></div>
 
 <div class="toast" id="toast"></div>
 
 <script>
+const ICO = {
+  'home': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  'users': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  'receipt': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`,
+  'landmark': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 2 7 22 7"/></svg>`,
+  'folder': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`,
+  'calendar': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  'check': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  'check-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+  'circle': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`,
+  'zap': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  'package': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
+  'arrow-right-left': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`,
+  'arrow-up': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`,
+  'paperclip': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>`,
+  'gift': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>`,
+  'info': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  'alert-triangle': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  'share-2': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`,
+  'download': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+  'file-text': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
+  'refresh-cw': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`,
+  'user': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  'bed': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>`,
+  'chevron-right': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`,
+  'chevron-down': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
+  'plus': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  'trash-2': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`,
+  'copy': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+  'edit': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  'save': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+  'message-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  'smartphone': `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
+};
+function ic(name, size=18){ const s=ICO[name]||""; return s.replace('width="18" height="18"',`width="${size}" height="${size}"`); }
+
+
 // ═══════════════════════════════════════════════
 // CONSTANTS
 // ═══════════════════════════════════════════════
@@ -626,21 +372,21 @@ const CHARGE_TYPES=['rent_charge','elec_charge','other_charge','prev_balance'];
 const AUTO_TYPES=['rent_charge','elec_charge']; // auto-synced from month settings
 
 const OC={
-  rent_charge:  {label:'Rent (Auto)',        icon:'🏠',isCharge:true,  cls:'ib-r', auto:true},
-  elec_charge:  {label:'Electricity (Auto)', icon:'⚡',isCharge:true,  cls:'ib-a', auto:true},
-  other_charge: {label:'Other Charge',       icon:'📦',isCharge:true,  cls:'ib-p'},
-  payment:      {label:'Payment to Owner',   icon:'💸',isCharge:false, cls:'ib-g'},
-  advance:      {label:'Advance Given',      icon:'⬆️',isCharge:false, cls:'ib-g'},
-  prev_balance: {label:'Prev Balance',       icon:'📋',isCharge:true,  cls:'ib-i'},
-  discount:     {label:'Owner Discount',     icon:'🎁',isCharge:false, cls:'ib-g'},
+  rent_charge:  {label:'Rent (Auto)',        icon:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',isCharge:true,  cls:'ib-r', auto:true},
+  elec_charge:  {label:'Electricity (Auto)', icon:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',isCharge:true,  cls:'ib-a', auto:true},
+  other_charge: {label:'Other Charge',       icon:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',isCharge:true,  cls:'ib-p'},
+  payment:      {label:'Payment to Owner',   icon:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',isCharge:false, cls:'ib-g'},
+  advance:      {label:'Advance Given',      icon:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',isCharge:false, cls:'ib-g'},
+  prev_balance: {label:'Prev Balance',       icon:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>',isCharge:true,  cls:'ib-i'},
+  discount:     {label:'Owner Discount',     icon:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',isCharge:false, cls:'ib-g'},
 };
 
 const OW_HINTS={
-  payment:      {cls:'ib-g',txt:'💸 You paid the owner — this reduces your balance.'},
-  advance:      {cls:'ib-g',txt:'⬆️ Advance paid to owner — reduces future balance.'},
-  other_charge: {cls:'ib-p',txt:'📦 Extra charge from owner — increases balance owed.'},
-  prev_balance: {cls:'ib-i',txt:'📋 Outstanding balance from last month.'},
-  discount:     {cls:'ib-g',txt:'🎁 Owner gave a discount — reduces your balance.'},
+  payment:      {cls:'ib-g',txt:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> You paid the owner — this reduces your balance.'},
+  advance:      {cls:'ib-g',txt:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg> Advance paid to owner — reduces future balance.'},
+  other_charge: {cls:'ib-p',txt:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Extra charge from owner — increases balance owed.'},
+  prev_balance: {cls:'ib-i',txt:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> Outstanding balance from last month.'},
+  discount:     {cls:'ib-g',txt:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Owner gave a discount — reduces your balance.'},
 };
 
 // ═══════════════════════════════════════════════
@@ -690,7 +436,6 @@ window.onload=()=>{
   const ms=gms(); if(ms.length) CUR=ms[0];
   document.getElementById('nm-m').value=new Date().toISOString().slice(0,7);
   document.getElementById('ow-dt').value=new Date().toISOString().slice(0,10);
-  document.getElementById('monthPillBtn').onclick=openMonthSheet;
   owHint(); render();
 };
 
@@ -752,7 +497,7 @@ function calcBill(m){
 // ═══════════════════════════════════════════════
 function renderWelcome(){
   return`<div class="empty" style="margin-top:60px;">
-    <span class="ei">🏠</span>
+    <span class="ei"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
     <div class="et">Welcome to RoomSplit</div>
     <div class="es">Your smart room rent manager for up to 9 roommates. Start by creating this month.</div>
     <div style="height:28px;"></div>
@@ -773,7 +518,7 @@ function rHome(m){
   const label=new Date(CUR+'-01').toLocaleString('default',{month:'long',year:'numeric'});
   return`
   <div class="hero">
-    <div class="hero-tag">📅 ${label}</div>
+    <div class="hero-tag"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="16" height="16" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${label}</div>
     <div class="hero-amt">AED ${total.toFixed(0)}</div>
     <div class="hero-sub">Total rent to collect · ${c.length} members</div>
     <div class="prog-wrap"><div class="prog-fill" style="width:${pct.toFixed(1)}%"></div></div>
@@ -782,29 +527,29 @@ function rHome(m){
       <span style="font-size:10px;opacity:.7;">${paidCnt}/${c.length} paid</span>
     </div>
     <div class="hero-pills">
-      <div class="hpill">✅ AED ${paidAmt.toFixed(0)} paid</div>
-      <div class="hpill">⏳ AED ${pendAmt.toFixed(0)} due</div>
+      <div class="hpill"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> AED ${paidAmt.toFixed(0)} paid</div>
+      <div class="hpill">[clock] AED ${pendAmt.toFixed(0)} due</div>
     </div>
   </div>
 
   <div class="stats">
     <div class="scard">
-      <div class="s-icon">🏠</div>
+      <div class="s-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
       <div class="s-val" style="color:var(--indigo);">AED ${m.rent}</div>
       <div class="s-lbl">Rent</div>
     </div>
     <div class="scard">
-      <div class="s-icon">⚡</div>
+      <div class="s-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
       <div class="s-val" style="color:var(--amber);">AED ${m.elec||0}</div>
       <div class="s-lbl">Electricity</div>
     </div>
     <div class="scard">
-      <div class="s-icon">📦</div>
+      <div class="s-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
       <div class="s-val" style="color:var(--purple);">AED ${m.other||0}</div>
       <div class="s-lbl">Other</div>
     </div>
     <div class="scard tap" onclick="openCostSheet()">
-      <div class="s-icon">✏️</div>
+      <div class="s-icon">[pen]</div>
       <div class="s-val" style="color:var(--text3);font-size:14px;">Edit</div>
       <div class="s-lbl">Modify Costs</div>
     </div>
@@ -812,12 +557,12 @@ function rHome(m){
 
   <div class="sec">
     <span class="sec-t">Payment Tracker</span>
-    <button class="sec-btn" onclick="openS('s-wa')">📤 Share</button>
+    <button class="sec-btn" onclick="shareReport('roommates')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>
   </div>
 
   ${c.length===0?`
   <div class="card cp"><div class="empty" style="padding:16px 0;">
-    <span class="ei" style="font-size:36px;">👥</span>
+    <span class="ei" style="font-size:36px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
     <div class="et" style="font-size:15px;">No members yet</div>
     <div class="es">Go to Members tab</div>
   </div></div>`:`
@@ -827,10 +572,10 @@ function rHome(m){
       <div class="av" style="background:${x.color}18;color:${x.color};">${x.name[0].toUpperCase()}</div>
       <div class="mi">
         <div class="mn">${x.name}</div>
-        <div class="ms">${x.shareType==='full'?'Full share':'Room only'}${x.disc>0?` · 🎁 -AED ${x.disc}`:''}</div>
+        <div class="ms">${x.shareType==='full'?'Full share':'Room only'}${x.disc>0?` · <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> -AED ${x.disc}`:''}</div>
       </div>
       <div class="mamt" style="margin-right:8px;">AED ${x.netPayable.toFixed(1)}</div>
-      <button class="ptog ${paid?'on':'off'}" onclick="togglePay('${x.id}')">${paid?'✓':'○'}</button>
+      <button class="ptog ${paid?'on':'off'}" onclick="togglePay('${x.id}')">${paid?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>'}</button>
     </div>`;}).join('')}
   </div>`}
   <div class="gap"></div>`;
@@ -847,7 +592,7 @@ function rMembers(m){
   </div>
   ${m.members.length===0?`
   <div class="card cp"><div class="empty" style="padding:16px 0;">
-    <span class="ei" style="font-size:36px;">👤</span>
+    <span class="ei" style="font-size:36px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
     <div class="et" style="font-size:15px;">No members yet</div>
     <div class="es">Tap + Add to get started</div>
   </div></div>`:`
@@ -865,11 +610,7 @@ function rMembers(m){
       <button class="rx" onclick="removeMember('${mem.id}')">✕</button>
     </div>`).join('')}
   </div>`}
-  <div class="card cp" style="margin-top:4px;">
-    <div class="ib ib-i" style="margin-bottom:8px;">🏠 <b>Full Share</b> — pays Rent + Electricity + Other expenses</div>
-    <div class="ib ib-a" style="margin-bottom:8px;">🛏️ <b>Room Only</b> — pays Rent only, no electricity or extras</div>
-    <div class="ib ib-p" style="margin-bottom:0;">🎁 <b>Floor Discount</b> — less rent for floor sleeper; difference is shared equally among all members</div>
-  </div>
+  <div class="card cp" style="margin-top:4px;"><div class="coll coll-i"><div class="coll-hdr" onclick="toggleColl(this)"><span class="coll-title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Share types explained</span><i class="coll-arr">&#9660;</i></div><div class="coll-body"><div class="coll-inner"><b>Full Share</b> — Rent + Electricity + Other expenses<br/><b>Room Only</b> — Rent only, no electricity or extras<br/><b>Floor Discount</b> — Less rent for floor sleeper; difference shared equally among all</div></div></div></div>
   <div class="gap"></div>`;
 }
 
@@ -929,19 +670,25 @@ function rOwner(m){
   <div class="ohero ${isOwed?'owed':'clear'}">
     <div class="oh-lbl">Owner Balance</div>
     <div class="oh-amt" style="color:${isOwed?'var(--red)':'var(--green)'};">AED ${Math.abs(finalBal).toFixed(0)}</div>
-    <div class="oh-st">${isOwed?'⚠️ Amount still owed to owner':'✅ All clear — nothing owed!'}</div>
+    <div class="oh-st">${isOwed?'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Amount still owed to owner':'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> All clear — nothing owed!'}</div>
     <div class="oh-chips">
-      <div class="bdg bdg-r">🏠 Charged AED ${totalCharged.toFixed(0)}</div>
-      <div class="bdg bdg-g">💸 Paid AED ${totalPaid.toFixed(0)}</div>
+      <div class="bdg bdg-r"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Charged AED ${totalCharged.toFixed(0)}</div>
+      <div class="bdg bdg-g"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Paid AED ${totalPaid.toFixed(0)}</div>
     </div>
   </div>
 
-  <div class="card cp" style="margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">How this works</div>
-    <div style="font-size:12px;color:var(--text3);line-height:2;">
-      <span class="bdg bdg-r" style="font-size:10px;">🏠 Rent  ⚡ Electricity  📦 Other</span> → adds to what you owe<br/>
-      <span class="bdg bdg-g" style="font-size:10px;">💸 Payments  ⬆️ Advance  🎁 Discount</span> → reduces balance<br/>
-      <span style="margin-top:4px;display:block;">🔄 <b>Rent & Electricity auto-appear</b> from month settings.<br/><span class="sync-badge" style="margin-top:4px;">🔄 Auto-synced</span> entries cannot be deleted — edit via home screen.</span>
+  <div class="coll coll-i" style="margin-bottom:12px;">
+    <div class="coll-hdr" onclick="toggleColl(this)">
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>&nbsp; How the Owner Ledger works</span>
+      <i class="coll-arr">&#9660;</i>
+    </div>
+    <div class="coll-body">
+      <div class="coll-inner">
+        <b>Charges</b> — Rent, Electricity, Other &rarr; add to balance owed<br/>
+        <b>Payments &amp; Discounts</b> &rarr; reduce your balance<br/>
+        Balance = 0 means nothing owed <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><br/><br/>
+        <span class="sync-badge"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>&nbsp;Auto</span> entries come from month settings. Edit costs on Home to update them.
+      </div>
     </div>
   </div>
 
@@ -952,7 +699,7 @@ function rOwner(m){
 
   <div class="card">
     ${withBal.length===0?`<div class="cp empty" style="padding:20px 0;">
-      <span class="ei" style="font-size:32px;">🏦</span>
+      <span class="ei" style="font-size:32px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 2 7 22 7"/></svg></span>
       <div class="et" style="font-size:15px;">No entries yet</div>
       <div class="es">Rent & electricity will auto-appear once set.</div>
     </div>`:`
@@ -964,12 +711,12 @@ function rOwner(m){
         <div class="lm">
           <div class="lt" style="display:flex;align-items:center;gap:6px;">
             ${t.label}
-            ${e.auto?`<span class="sync-badge" style="font-size:9px;padding:2px 7px;">🔄 Auto</span>`:''}
+            ${e.auto?`<span class="sync-badge" style="font-size:9px;padding:2px 7px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Auto</span>`:''}
           </div>
           <div class="ls">${e.note?e.note+' · ':''}${e.date||''}</div>
           <div class="lb" style="color:${balClr};">
             <span style="color:var(--text3);font-size:10px;">Balance after:</span>
-            AED ${Math.abs(e.bal).toFixed(0)} ${e.bal<=0?'✅':'⚠️'}
+            AED ${Math.abs(e.bal).toFixed(0)} ${e.bal<=0?'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'}
           </div>
         </div>
         <div class="lr">
@@ -980,7 +727,7 @@ function rOwner(m){
   </div>
 
   <div class="gap"></div>
-  <button class="btn btn-ghost" onclick="openS('s-wa')">📤 Share Owner Report via WhatsApp</button>
+  <button class="btn btn-ghost" onclick="shareReport('roommates')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share Owner Report via WhatsApp</button>
   <div class="gap"></div>`;
 }
 
@@ -994,7 +741,7 @@ function rHistory(){
     <span class="sec-t">All Months (${ms.length})</span>
     <button class="sec-btn" onclick="openS('s-newm')">＋ New</button>
   </div>
-  ${ms.length===0?`<div class="card cp"><div class="empty" style="padding:16px 0;"><span class="ei">📅</span><div class="et">No months saved yet</div></div></div>`:`
+  ${ms.length===0?`<div class="card cp"><div class="empty" style="padding:16px 0;"><span class="ei"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="16" height="16" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><div class="et">No months saved yet</div></div></div>`:`
   <div class="card">
     ${ms.map((k,i)=>{
       const mo=gm(k);
@@ -1014,7 +761,7 @@ function rHistory(){
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <div style="font-weight:800;font-size:13px;color:var(--indigo);">AED ${total.toFixed(0)}</div>
-          <div style="font-size:11px;font-weight:700;color:${owBal<=0?'var(--green)':'var(--red)'};">${owBal<=0?'Owner ✅':'Owes AED '+Math.abs(owBal).toFixed(0)}</div>
+          <div style="font-size:11px;font-weight:700;color:${owBal<=0?'var(--green)':'var(--red)'};">${owBal<=0?'Owner <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'Owes AED '+Math.abs(owBal).toFixed(0)}</div>
         </div>
         <span style="color:var(--text3);font-size:20px;margin-left:4px;">›</span>
       </div>`;}).join('')}
@@ -1046,14 +793,14 @@ function openMonthSheet(){
 
 function pickMonth(k){
   CUR=k; render();
-  toast('📅 '+new Date(k+'-01').toLocaleString('default',{month:'long',year:'numeric'}));
+  toast('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="16" height="16" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> '+new Date(k+'-01').toLocaleString('default',{month:'long',year:'numeric'}));
 }
 
 function createMonth(){
   const k=document.getElementById('nm-m').value;
-  if(!k){toast('⚠️ Select a month');return;}
+  if(!k){toast('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Select a month');return;}
   const rent=document.getElementById('nm-r').value;
-  if(!rent){toast('⚠️ Enter rent amount');return;}
+  if(!rent){toast('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Enter rent amount');return;}
   let m=gm(k);
   if(m){
     m.rent=+rent;m.elec=+document.getElementById('nm-e').value||0;
@@ -1063,7 +810,7 @@ function createMonth(){
     const prev=gms(); if(prev.length){const lm=gm(prev[0]);if(lm?.members?.length)m.members=lm.members.map(x=>({...x}));}
   }
   sm(k,m);CUR=k;closeS('s-newm');render();
-  toast('✅ Month created! Rent & electricity auto-added to Owner Ledger.');
+  toast('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Month created! Rent & electricity auto-added to Owner Ledger.');
 }
 
 // ═══════════════════════════════════════════════
@@ -1076,13 +823,13 @@ function setSeg(sid,el,val){
 }
 function addMember(){
   const name=document.getElementById('mb-n').value.trim();
-  if(!name){toast('⚠️ Enter a name');return;}
+  if(!name){toast('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Enter a name');return;}
   const m=gm(CUR);
   m.members.push({id:Date.now().toString(),name,shareType:document.getElementById('mb-t').value,
     discount:+document.getElementById('mb-d').value||0,color:COLORS[m.members.length%COLORS.length]});
   sm(CUR,m);closeS('s-mem');
   document.getElementById('mb-n').value='';document.getElementById('mb-d').value='';
-  render();toast('👤 '+name+' added!');
+  render();toast('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> '+name+' added!');
 }
 function removeMember(id){
   const m=gm(CUR);m.members=m.members.filter(x=>x.id!==id);sm(CUR,m);render();toast('Member removed');
@@ -1092,14 +839,14 @@ function removeMember(id){
 // DEDUCTIONS
 // ═══════════════════════════════════════════════
 function openDedSheet(){
-  const m=gm(CUR);if(!m.members.length){toast('⚠️ Add members first');return;}
+  const m=gm(CUR);if(!m.members.length){toast('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Add members first');return;}
   document.getElementById('ded-m').innerHTML=m.members.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');
   document.getElementById('ded-d').value='';document.getElementById('ded-a').value='';
   openS('s-ded');
 }
 function addDed(){
   const amt=+document.getElementById('ded-a').value;
-  if(!amt){toast('⚠️ Enter amount');return;}
+  if(!amt){toast('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Enter amount');return;}
   const m=gm(CUR);
   m.deductions.push({id:Date.now().toString(),memberId:document.getElementById('ded-m').value,
     desc:document.getElementById('ded-d').value.trim()||'Room expense',amount:amt});
@@ -1124,12 +871,12 @@ function openOwnerSheet(){
 }
 function addOwnerEntry(){
   const amt=+document.getElementById('ow-a').value;
-  if(!amt){toast('⚠️ Enter amount');return;}
+  if(!amt){toast('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Enter amount');return;}
   const m=gm(CUR);if(!m.ownerLedger)m.ownerLedger=[];
   m.ownerLedger.push({id:Date.now().toString(),type:document.getElementById('ow-t').value,
     amount:amt,note:document.getElementById('ow-n').value.trim(),
     date:document.getElementById('ow-dt').value});
-  sm(CUR,m);closeS('s-ow');render();toast('🏦 Entry added!');
+  sm(CUR,m);closeS('s-ow');render();toast('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 2 7 22 7"/></svg> Entry added!');
 }
 function removeOwnerE(id){
   const m=gm(CUR);m.ownerLedger=m.ownerLedger.filter(e=>e.id!==id);sm(CUR,m);render();toast('Removed');
@@ -1150,7 +897,7 @@ function saveCosts(){
   m.rent=+document.getElementById('ec-r').value||m.rent;
   m.elec=+document.getElementById('ec-e').value||0;
   m.other=+document.getElementById('ec-o').value||0;
-  sm(CUR,m);closeS('s-ec');render();toast('✅ Costs updated! Owner Ledger auto-updated.');
+  sm(CUR,m);closeS('s-ec');render();toast('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Costs updated! Owner Ledger auto-updated.');
 }
 
 // ═══════════════════════════════════════════════
@@ -1158,76 +905,143 @@ function saveCosts(){
 // ═══════════════════════════════════════════════
 function togglePay(id){
   const m=gm(CUR);m.payments[id]=!m.payments[id];sm(CUR,m);render();
-  toast(m.payments[id]?'✅ Marked as paid!':'↩️ Undone');
+  toast(m.payments[id]?'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Marked as paid!':'↩️ Undone');
 }
 
 // ═══════════════════════════════════════════════
 // SHARE — Web Share API (mobile) + download fallback (desktop)
 // ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// SHARE SYSTEM
+// ═══════════════════════════════════════════════
+let _rt = 'roommates';
+
+function selRT(t){
+  _rt = t;
+  document.querySelectorAll('.rtype').forEach(el => el.classList.remove('on'));
+  const el = document.getElementById('rt-'+t);
+  if(el) el.classList.add('on');
+}
+
 function shareReport(type){
+  _rt = type || 'roommates';
+  selRT(_rt);
+  openS('s-wa');
+}
+
+function doAct(action){
+  if(!CUR){ toast('No month selected'); return; }
   closeS('s-wa');
-  toast('⏳ Generating PDF…');
-  setTimeout(()=>{
-    const {blob,fname,summary} = type==='roommates' ? buildRoommatesPDF() : buildOwnerPDF();
-    doShare(blob, fname, summary);
+  toast('Generating PDF...');
+  setTimeout(async ()=>{
+    try {
+      const r = _rt === 'roommates' ? buildRoommatesPDF() : buildOwnerPDF();
+      await runAction(action, r.blob, r.fname, r.summary);
+    } catch(e){ toast('Error: '+e.message); console.error(e); }
   }, 400);
 }
 
-async function doShare(blob, fname, summary){
-  const file = new File([blob], fname, {type:'application/pdf'});
+async function runAction(action, blob, fname, summary){
+  const waText = encodeURIComponent(summary);
 
-  // ── Try native share (works on mobile Chrome/Safari — can share file to WhatsApp directly)
-  if(navigator.canShare && navigator.canShare({files:[file]})){
-    try{
-      await navigator.share({
-        files:[file],
-        title:'RoomSplit Report',
-        text: summary
-      });
-      toast('✅ Shared successfully!');
-      return;
-    }catch(e){
-      if(e.name==='AbortError') return; // user cancelled — don't fallback
-    }
+  // ── DOWNLOAD
+  if(action === 'download'){
+    dl(blob, fname);
+    showReady(fname, summary, waText);
+    return;
   }
 
-  // ── Fallback: download PDF + show instructions with WhatsApp text button
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download=fname; a.click();
-  setTimeout(()=> URL.revokeObjectURL(url), 2000);
+  // ── WHATSAPP
+  if(action === 'whatsapp'){
+    // Try native file share (works in real browser on mobile)
+    try {
+      const file = new File([blob], fname, {type:'application/pdf'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title:'RoomSplit', text:summary});
+        toast('Shared!'); return;
+      }
+    } catch(e){ if(e.name==='AbortError') return; }
+    // Fallback: download + open WhatsApp with text
+    dl(blob, fname);
+    setTimeout(()=>{
+      // whatsapp:// works in APK/installed PWA
+      window.location.href = 'whatsapp://send?text='+waText;
+      setTimeout(()=>{ window.open('https://wa.me/?text='+waText,'_blank'); }, 1500);
+    }, 700);
+    showReady(fname, summary, waText);
+    return;
+  }
 
-  // Show ready sheet with clear instructions
-  const waText = encodeURIComponent(summary);
+  // ── OTHER SHARE
+  if(action === 'share'){
+    try {
+      const file = new File([blob], fname, {type:'application/pdf'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title:'RoomSplit Report'});
+        toast('Shared!'); return;
+      }
+    } catch(e){ if(e.name==='AbortError') return; }
+    // Fallback: download
+    dl(blob, fname);
+    showReady(fname, summary, waText);
+  }
+}
+
+function dl(blob, fname){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=fname;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 3000);
+}
+
+function showReady(fname, summary, waText){
   document.getElementById('pdf-ready-content').innerHTML = `
-    <div class="ib ib-g" style="margin-bottom:16px;">
-      ✅ <b>PDF downloaded!</b> Check your Downloads folder.
+    <div class="ib ib-g" style="margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <b>PDF saved to Downloads!</b>
     </div>
-    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;">
-      <div style="font-size:12px;font-weight:800;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;">📱 How to send on WhatsApp</div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <div style="width:24px;height:24px;border-radius:50%;background:var(--indigo-l);color:var(--indigo);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;">1</div>
-          <div style="font-size:13px;color:var(--text2);">Open <b>WhatsApp</b> and go to the chat (room group or owner)</div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <div style="width:24px;height:24px;border-radius:50%;background:var(--indigo-l);color:var(--indigo);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;">2</div>
-          <div style="font-size:13px;color:var(--text2);">Tap the 📎 attachment icon → select <b>Document</b></div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <div style="width:24px;height:24px;border-radius:50%;background:var(--indigo-l);color:var(--indigo);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;">3</div>
-          <div style="font-size:13px;color:var(--text2);">Find <b>${fname}</b> in Downloads and send</div>
-        </div>
-      </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-wa" onclick="window.open('https://wa.me/?text=${waText}','_blank')">
-        <span style="font-size:20px;">💬</span> Open WhatsApp with Summary Text
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+      <button class="sact" onclick="doWA('${waText}')">
+        <div class="sact-ic" style="background:#25D366;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div class="sact-txt"><b>Open WhatsApp</b><span>Then attach PDF from Downloads</span></div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
-      <div style="font-size:11px;color:var(--text3);text-align:center;">This sends the text summary. Attach the PDF separately.</div>
-      <button class="btn btn-ghost" onclick="closeS('s-pdfready')">Done</button>
-    </div>`;
+      <button class="sact" onclick="copySum()">
+        <div class="sact-ic" style="background:var(--indigo);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div>
+        <div class="sact-txt"><b>Copy Summary Text</b><span>Paste in WhatsApp as message</span></div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div style="background:var(--surface);border-radius:14px;padding:14px;border:1px solid var(--border);margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Summary
+      </div>
+      <div id="sum-txt" style="font-size:12px;color:var(--text2);line-height:1.9;white-space:pre-wrap;">${summary}</div>
+    </div>
+    <button class="btn btn-ghost" onclick="closeS('s-pdfready')">Close</button>`;
   openS('s-pdfready');
 }
+
+function doWA(text){
+  window.location.href = 'whatsapp://send?text='+text;
+  setTimeout(()=>{ window.open('https://wa.me/?text='+text,'_blank'); }, 1500);
+}
+
+function copySum(){
+  const t = document.getElementById('sum-txt')?.innerText||'';
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(t).then(()=>toast('Copied!')).catch(()=>legacyCopy(t));
+  } else { legacyCopy(t); }
+}
+
+function legacyCopy(t){
+  const el=document.createElement('textarea');
+  el.value=t; el.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(el); el.select();
+  document.execCommand('copy'); document.body.removeChild(el);
+  toast('Copied!');
+}
+
 
 // ═══════════════════════════════════════════════
 // PDF BUILDERS
@@ -1285,7 +1099,7 @@ function buildRoommatesPDF(){
   doc.text('Generated by RoomSplit · '+new Date().toLocaleDateString(),14,y);
 
   const fname=`RoomSplit_Roommates_${label.replace(/\s/g,'_')}.pdf`;
-  const summary=`🏠 *RoomSplit — ${label}*\n\nHi team! Rent report for ${label}:\n\n💰 Total: AED ${total.toFixed(0)}\n✅ Collected: AED ${paidAmt.toFixed(0)}\n⏳ Pending: AED ${pendAmt.toFixed(0)}\n👥 ${c.filter(x=>m.payments[x.id]).length}/${c.length} members paid\n\n_See attached PDF for full breakdown._\n_Generated by RoomSplit_`;
+  const summary=`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> *RoomSplit — ${label}*\n\nHi team! Rent report for ${label}:\n\n[coins] Total: AED ${total.toFixed(0)}\n<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Collected: AED ${paidAmt.toFixed(0)}\n[clock] Pending: AED ${pendAmt.toFixed(0)}\n<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> ${c.filter(x=>m.payments[x.id]).length}/${c.length} members paid\n\n_See attached PDF for full breakdown._\n_Generated by RoomSplit_`;
   return {blob:doc.output('blob'), fname, summary};
 }
 
@@ -1342,8 +1156,18 @@ function buildOwnerPDF(){
   doc.text('Generated by RoomSplit · '+new Date().toLocaleDateString(),14,y);
 
   const fname=`RoomSplit_Owner_${label.replace(/\s/g,'_')}.pdf`;
-  const summary=`🏠 *RoomSplit — Owner Account*\n*${label}*\n\n📊 Account Summary:\n🏠 Total Charged: AED ${totalCharged.toFixed(0)}\n💸 Total Paid: AED ${totalPaid.toFixed(0)}\n${finalBal<=0?'✅ Balance: CLEAR — nothing owed':'⚠️ Still Owed to Owner: AED '+Math.abs(finalBal).toFixed(0)}\n\n_See attached PDF for full transaction ledger._\n_Generated by RoomSplit_`;
+  const summary=`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> *RoomSplit — Owner Account*\n*${label}*\n\n📊 Account Summary:\n<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Total Charged: AED ${totalCharged.toFixed(0)}\n<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Total Paid: AED ${totalPaid.toFixed(0)}\n${finalBal<=0?'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Balance: CLEAR — nothing owed':'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Still Owed to Owner: AED '+Math.abs(finalBal).toFixed(0)}\n\n_See attached PDF for full transaction ledger._\n_Generated by RoomSplit_`;
   return {blob:doc.output('blob'), fname, summary};
+}
+
+// ═══════════════════════════════════════════════
+// COLLAPSIBLE TOGGLE
+// ═══════════════════════════════════════════════
+function toggleColl(hdr){
+  const arr  = hdr.querySelector('.coll-arr');
+  const body = hdr.nextElementSibling;
+  const open = body.classList.toggle('open');
+  arr.classList.toggle('open', open);
 }
 
 // ═══════════════════════════════════════════════
@@ -1361,7 +1185,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 window.addEventListener('appinstalled', () => {
   const btn = document.getElementById('installBtn');
   if(btn) btn.style.display = 'none';
-  toast('✅ RoomSplit installed as app!');
+  toast('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> RoomSplit installed as app!');
 });
 
 async function installApp() {
@@ -1377,15 +1201,15 @@ async function installApp() {
     toast('Use browser menu → "Add to Home Screen"');
     setTimeout(()=>{
       document.getElementById('pdf-ready-content').innerHTML = `
-        <div class="ib ib-i" style="margin-bottom:16px;">📲 <b>Install RoomSplit as an App</b></div>
+        <div class="ib ib-i" style="margin-bottom:16px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> <b>Install RoomSplit as an App</b></div>
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div style="background:var(--surface);border-radius:14px;padding:14px;border:1px solid var(--border);">
             <div style="font-weight:800;font-size:13px;margin-bottom:8px;">🤖 Android (Chrome)</div>
-            <div style="font-size:12px;color:var(--text2);line-height:1.8;">1. Tap ⋮ menu (top right)<br/>2. Tap <b>"Add to Home Screen"</b><br/>3. Tap Add ✅</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.8;">1. Tap ⋮ menu (top right)<br/>2. Tap <b>"Add to Home Screen"</b><br/>3. Tap Add <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           </div>
           <div style="background:var(--surface);border-radius:14px;padding:14px;border:1px solid var(--border);">
             <div style="font-weight:800;font-size:13px;margin-bottom:8px;">🍎 iPhone (Safari)</div>
-            <div style="font-size:12px;color:var(--text2);line-height:1.8;">1. Tap Share button □↑ (bottom)<br/>2. Scroll → tap <b>"Add to Home Screen"</b><br/>3. Tap Add ✅</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.8;">1. Tap Share button □↑ (bottom)<br/>2. Scroll → tap <b>"Add to Home Screen"</b><br/>3. Tap Add <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           </div>
         </div>
         <div class="gap"></div>
@@ -1403,6 +1227,61 @@ function toast(msg){
   t.textContent=msg;t.classList.add('show');
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
 }
+
+// ── Init icons after page load ──
+window.addEventListener('DOMContentLoaded', ()=>{
+  // Nav icons
+  setI('ic-nav-home',    ic('home',22));
+  setI('ic-nav-members', ic('users',22));
+  setI('ic-nav-bill',    ic('receipt',22));
+  setI('ic-nav-owner',   ic('landmark',22));
+  setI('ic-nav-history', ic('folder',22));
+  // Header logo icon
+  setI('logoMark',       ic('home',16,'#fff'));
+  // Install button
+  const ib=document.getElementById('installBtn');
+  if(ib){ ib.innerHTML=ic('download',14)+' Install'; }
+  // Month pill chevron
+  setI('pillArrow', ic('chevron-down',14));
+  // Sheet titles
+  setI('sht-months',  ic('calendar',20)+' Months');
+  setI('sht-newm',    ic('plus-circle',20)+' Create Month');
+  setI('sht-mem',     ic('user-plus',20)+' Add Member');
+  setI('sht-ded',     ic('minus-circle',20)+' Room Expense');
+  setI('sht-ow',      ic('landmark',20)+' Owner Entry');
+  setI('sht-ec',      ic('edit',20)+' Edit Costs');
+  setI('sht-wa',      ic('share-2',20)+' Share Report');
+  setI('sht-pdfready',ic('file-text',20)+' PDF Ready');
+  // Collapsible headers
+  setI('coll-sync-hdr',  ic('info',14)+' How auto-sync works');
+  setI('coll-share-hdr', ic('info',14)+' Share types explained');
+  setI('coll-ded-hdr',   ic('info',14)+' What is this?');
+  setI('coll-ec-hdr',    ic('alert-triangle',14)+' Note about editing');
+  // Collapsible arrows
+  ['coll-sync-arr','coll-share-arr','coll-ded-arr','coll-ec-arr'].forEach(id=>{
+    setI(id, ic('chevron-down',14));
+  });
+  // Buttons
+  setI('btn-create-m',  ic('check',16)+' Create Month');
+  setI('btn-add-mem',   ic('plus',16)+' Add Member');
+  setI('btn-add-ded',   ic('check',16)+' Save');
+  setI('btn-add-ow',    ic('plus',16)+' Add Entry');
+  setI('btn-save-ec',   ic('save',16)+' Save');
+  setI('sht-newm-btn',  ic('plus',16)+' New Month');
+  // Share sheet icons
+  setI('rtic-rm',  ic('users',20));
+  setI('rtic-ow',  ic('landmark',20));
+  setI('si-dl',    ic('download',20,'#fff'));
+  setI('si-wa',    `<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`);
+  setI('si-sh',    ic('share-2',20,'#fff'));
+  setI('si-chev1', ic('chevron-right',16,'var(--text3)'));
+  setI('si-chev2', ic('chevron-right',16,'var(--text3)'));
+  setI('si-chev3', ic('chevron-right',16,'var(--text3)'));
+  // Run initial render
+  render();
+});
+
+function setI(id,html){ const el=document.getElementById(id); if(el) el.innerHTML=html; }
 </script>
 </body>
 </html>
